@@ -1,18 +1,28 @@
 # Makefile
 
+CPPFLAGS = -MMD `sdl2-config --cflags`
 CC = gcc
 CFLAGS = `pkg-config --cflags gtk+-3.0` -Wall -O3
-LDLIBS = `pkg-config --libs gtk+-3.0`
+LDFLAGS =
+LDLIBS = `pkg-config --libs gtk+-3.0` `sdl2-config --libs` -L/usr/X11R6/lib/ -lGL -lGLU -lglut -lm
 
-EXE = main
+SRC = main.c sound.c shape.c
+OBJ = ${SRC:.c=.o}
+DEP = ${SRC:.c=.d}
 
-all: $(EXE)
+all: main
 
-$(foreach f, $(EXE), $(eval $(f):))
+main: main.o
+shape: shape.o
+sound: sound.o
+
+-include ${DEP}
 
 .PHONY: clean
 
 clean:
-	${RM} $(EXE)
+	${RM} ${OBJ}
+	${RM} ${DEP}
+	${RM} sound shape main
 
 # END
