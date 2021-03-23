@@ -5,6 +5,7 @@
   <object class="GtkApplicationWindow" id="MainWindow">
     <property name="can-focus">False</property>
     <property name="border-width">5</property>
+    <property name="title" translatable="yes">Mecanic_pulsation</property>
     <property name="default-width">440</property>
     <property name="default-height">250</property>
     <child>
@@ -14,7 +15,7 @@
         <property name="can-focus">False</property>
         <property name="column-homogeneous">True</property>
         <child>
-          <object class="GtkGLArea">
+          <object class="GtkGLArea" id="OGLarea">
             <property name="visible">True</property>
             <property name="app-paintable">True</property>
             <property name="can-focus">False</property>
@@ -41,7 +42,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton">
+          <object class="GtkButton" id="filte_1">
             <property name="label" translatable="yes">Filtre 1</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
@@ -54,11 +55,11 @@
           </packing>
         </child>
         <child>
-          <object class="GtkFileChooserButton">
+          <object class="GtkFileChooserButton" id="file_chooser">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="margin-end">4</property>
-            <property name="title" translatable="yes"/>
+            <property name="title" translatable="yes">Fichier son (.wav,.mp3 ...)</property>
           </object>
           <packing>
             <property name="left-attach">0</property>
@@ -66,7 +67,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton">
+          <object class="GtkButton" id="filte_2">
             <property name="label" translatable="yes">Filtre 2</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
@@ -79,7 +80,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton">
+          <object class="GtkButton" id="filte_3">
             <property name="label" translatable="yes">Filtre3</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
