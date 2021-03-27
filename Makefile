@@ -12,7 +12,7 @@ DEP = ${SRC:.c=.d}
 
 all: main
 
-main: main.o shape.o
+main: main.o
 shape: shape.o
 sound: sound.o
 
