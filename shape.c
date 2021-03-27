@@ -1,74 +1,55 @@
-#include <GL/glut.h>
-#include <math.h>
+#include <GL/glew.h>
+#include <err.h>
 
-void WireSphere(GLfloat radius, int slices, int stacks) {
-    glPushMatrix();
-    glRotatef(-90.0, 1.0, 0.0, 0.0);
-    glutWireSphere(radius, slices, stacks);
-    glPopMatrix();
-}
+void draw_triangle() {
+  glewExperimental = GL_TRUE;
+  GLenum error = glewInit();
+  if (error != GLEW_OK) {
+    errx(1, "Unable to init GLEW");
+  }
 
-static int t1 = 0, t2 = 0;
+  float points[] = {0.0f, 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, -0.5f, -0.5f, 0.0f};
 
+  GLuint vbo = 0;
+  glGenBuffers(1, &vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), points, GL_STATIC_DRAW);
 
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPushMatrix();
+  GLuint vao = 0;
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+  glEnableVertexAttribArray(0);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-    // Draw sun: a yellow sphere of radius 1 centered at the origin.
-    glColor3f(1.0, 1.0, 0.0);
-    WireSphere(1.0, 15, 15);
+  const char *vertex_shader = "#version 450\n"
+                              "in vec3 vp;"
+                              "void main() {"
+                              "  gl_Position = vec4(vp, 1.0);"
+                              "}";
 
-    glRotatef((GLfloat)t1, 0.0, 1.0, 0.0);
-    glTranslatef (2.0, 0.0, 0.0);
-    glRotatef((GLfloat)t2, 0.0, 1.0, 0.0);
-    glColor3f(0.0, 0.0, 1.0);
-    glColor3f(1, 1, 1);
-    glLoadIdentity();
+  const char *fragment_shader = "#version 450\n"
+                                "out vec4 frag_colour;"
+                                "void main() {"
+                                "  frag_colour = vec4(1.0, 0.0, 0.0, 1.0);"
+                                "}";
 
-    glFlush();
-    glutSwapBuffers();
-}
+  GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+  glShaderSource(vs, 1, &vertex_shader, NULL);
+  glCompileShader(vs);
+  GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fs, 1, &fragment_shader, NULL);
+  glCompileShader(fs);
 
-static GLfloat u = 0.0;
-static GLfloat du = 0.1;
+  GLuint shader_programme = glCreateProgram();
+  glAttachShader(shader_programme, fs);
+  glAttachShader(shader_programme, vs);
+  glLinkProgram(shader_programme);
+  glUseProgram(shader_programme);
 
-void animate(int v) {
-    u += du;
-    t1 = (t1 + 1) % 360;
-    t2 = (t2 + 2) % 360;
-    glLoadIdentity();
-    gluLookAt(20*cos(u/8.0)+12,5*sin(u/8.0)+1,10*cos(u/8.0)+2, 0,0,0, 0,1,0);
-    glutPostRedisplay();
-    glutTimerFunc(1000/60, animate, v);
-}
+  glClearColor(0.3, 0.3, 0.3, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-void reshape(GLint w, GLint h) {
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(60.0, (GLfloat)w/(GLfloat)h, 1.0, 40.0);
-    glMatrixMode(GL_MODELVIEW);
-}
-
-void init()
-{
-    gluLookAt(0.0, 0.0, 5.0,
-              0.0, 0.0, 0.0,
-              0.0, 1.0, 0.);
-}
-
-int main(int argc, char** argv) {
-    glutInit(&argc, argv);
-    glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(800, 600);
-    glutCreateWindow("Sphere");
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    //glutTimerFunc(100, animate, 0);
-    init();
-    glPopMatrix();
-    glEnable(GL_DEPTH_TEST);
-    glutMainLoop();
-    return 0;
+  glBindVertexArray(vao);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
 }

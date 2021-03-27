@@ -1,0 +1,6 @@
+#ifndef MECHANIC_PULSATION_SOUND_H
+#define MECHANIC_PULSATION_SOUND_H
+
+void play_sound(char *file);
+
+#endif //MECHANIC_PULSATION_SOUND_H

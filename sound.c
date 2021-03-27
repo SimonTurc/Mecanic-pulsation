@@ -17,16 +17,25 @@ void play_sound(char *file) {
   Mix_AllocateChannels(1);
   Mix_Volume(0, MIX_MAX_VOLUME);
 
-  Mix_Chunk* sound = Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1);
-
-  Mix_PlayChannel(0, sound, 0);
+  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1);
+  if (sound == NULL) {
+    Mix_CloseAudio();
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
+  }
+  if (Mix_PlayChannel(0, sound, 0) == -1) {
+    Mix_CloseAudio();
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to play on the channel 0 : %s", Mix_GetError());
+  }
 
   // To print samples
   /*for (Uint32 i = 0; i < sound->alen;++i) {
       printf("Samples: %d\n", sound->abuf[i]);
   }*/
 
-  while(Mix_Playing(0)) { }
+  while (Mix_Playing(0)) {
+  }
 
   Mix_FreeChunk(sound);
   Mix_CloseAudio();
