@@ -1,9 +1,37 @@
 #include "shape.h"
+#include "movement.h"
 #include <gtk-3.0/gtk/gtk.h>
 #include <gtk-3.0/gtk/gtkglarea.h>
 
+float points[] = {
+        //     x,     y,    z,    r,    g,    b,
+            0.0f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+            0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f,
+            -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f,
+            0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+            0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f,
+            -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f
+  };
+
+void print_mat(float points[])
+{
+  for (size_t i = 0; i < 6; i++)
+  {
+    for (size_t j = 0; j < 6; j++)
+    {
+      g_print("%f  ",points[i*6+j]);
+    }
+    g_print("\n");
+  }
+  g_print("\n");
+  g_print(" -------------------------------------\n");
+  g_print("\n");
+}
+
 static gboolean render() {
-  draw_triangle();
+  on_motion(points,6);
+  print_mat(points);
+  draw_triangle(points);
   return TRUE;
 }
 

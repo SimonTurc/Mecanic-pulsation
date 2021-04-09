@@ -3,4 +3,4 @@
 
 void draw_triangle();
 
-#endif //MECHANIC_PULSATION_SHAPE_H
+#endif // MECHANIC_PULSATION_SHAPE_H

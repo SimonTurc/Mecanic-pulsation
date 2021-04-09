@@ -2,22 +2,12 @@
 #include <err.h>
 #include <stdio.h>
 
-void draw_triangle() {
+void draw_triangle(float points[]) {
   glewExperimental = GL_TRUE;
   GLenum error = glewInit();
   if (error != GLEW_OK) {
     errx(1, "Unable to init GLEW");
   }
-
-  float points[] = {
-            0.0f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-            0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f,
-            -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f,
-            0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-            0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f,
-            -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f
-  };
-
   const char* vertex_shader =
             "#version 330 core\n"
             "layout (location = 0) in vec3 aPos;"
@@ -75,7 +65,7 @@ void draw_triangle() {
     glBindVertexArray(vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(points), points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 36*4/*sizeof(points)*/, points, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6* sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
