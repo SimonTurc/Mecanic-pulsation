@@ -5,19 +5,28 @@
 
 float points[] = {
         //     x,     y,    z,    r,    g,    b,
-            0.0f,  1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-            0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f,
-            -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f,
-            0.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-            0.5f, 0.0f, 0.5f, 0.0f, 1.0f, 0.0f,
-            -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f
+            0.0f,  1.0f, 0.0f, 0.2f, 0.1f, 0.4f,
+            0.5f, 0.0f, 0.5f, 0.3f, 0.0f, 0.7f,
+            -0.5f, 0.0f, 0.5f, 0.3f, 0.0f, 0.7f,
+
+            0.0f, -1.0f, 0.0f, 0.2f, 0.1f, 0.4f,
+            0.5f, 0.0f, 0.5f, 0.3f, 0.0f, 0.7f,
+            -0.5f, 0.0f, 0.5f, 0.3f, 0.0f, 0.7f,
+
+            0.0f,  1.0f, 0.0f, 0.2f, 0.1f, 0.4f,
+            0.5f, 0.0f, -0.5f, 0.3f, 0.0f, 0.7f,
+            -0.5f, 0.0f, -0.5f, 0.3f, 0.0f, 0.7f,
+            
+            0.0f, -1.0f, 0.0f, 0.2f, 0.1f, 0.4f,
+            0.5f, 0.0f, -0.5f, 0.3f, 0.0f, 0.7f,
+            -0.5f, 0.0f, -0.5f, 0.3f, 0.0f, 0.7f
   };
 
 void print_mat(float points[])
 {
-  for (size_t i = 0; i < 6; i++)
+  for (size_t i = 0; i < 12; i++)
   {
-    for (size_t j = 0; j < 6; j++)
+    for (size_t j = 0; j < 12; j++)
     {
       g_print("%f  ",points[i*6+j]);
     }
@@ -29,8 +38,8 @@ void print_mat(float points[])
 }
 
 static gboolean render() {
-  on_motion(points,6);
-  print_mat(points);
+  on_motion(points,12);
+  //print_mat(points);
   draw_triangle(points);
   return TRUE;
 }
@@ -39,7 +48,7 @@ void function_test() { g_print("Pass\n"); }
 
 int main() {
   GtkWidget *main_window;
-  GtkGLArea *gl_area;
+  GtkWidget *gl_area;
   GtkButton *button_filter1;
   GtkButton *button_filter2;
   GtkButton *button_filter3;
@@ -63,7 +72,7 @@ int main() {
   button_filter2 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_2"));
   button_filter3 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_3"));
   button_filter3 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_3"));
-  gl_area = GTK_GL_AREA(gtk_builder_get_object(builder, "OGLarea"));
+  gl_area = GTK_WIDGET(gtk_builder_get_object(builder, "OGLarea"));
 
   g_signal_connect(G_OBJECT(main_window), "destroy", (GCallback)gtk_main_quit,
                    NULL);
@@ -74,7 +83,7 @@ int main() {
   g_signal_connect(G_OBJECT(button_filter3), "clicked",
                    G_CALLBACK(function_test), NULL);
   g_signal_connect(G_OBJECT(gl_area), "render", G_CALLBACK(render), NULL);
-
+  
   gtk_widget_show_all(main_window);
   gtk_main();
 
