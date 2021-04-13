@@ -37,10 +37,11 @@ void print_mat(float points[])
   g_print("\n");
 }
 
-static gboolean render() {
+static gboolean render(GtkGLArea* area) {
   on_motion(points,12);
   //print_mat(points);
   draw_triangle(points);
+  gtk_gl_area_queue_render(area);
   return TRUE;
 }
 
