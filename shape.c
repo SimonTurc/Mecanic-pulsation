@@ -62,9 +62,9 @@ void draw_triangle(float points[], unsigned int indexes[], unsigned int buffer_s
                GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
-  //glEnableVertexAttribArray(1);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-  //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),(void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),(void *)(3 * sizeof(float)));
 
   unsigned int ibo;
   glGenBuffers(1, &ibo);
@@ -74,22 +74,25 @@ void draw_triangle(float points[], unsigned int indexes[], unsigned int buffer_s
 
   const char *vertex_shader = "#version 450 core\n"
                               "layout (location = 0) in vec4 position;"
+                              "layout (location = 1) in vec3 aColor;"
+                              "out vec3 outcolor;"
                               "void main() {"
                               "   gl_Position = position;"
+                              "   outcolor = aColor;"
                               "}";
 
   const char *fragment_shader = "#version 450 core\n"
                                 "out vec4 frag_color;"
-                                "uniform vec3 u_Color;"
+                                "in vec3 outcolor;"
                                 "void main() {"
-                                "  frag_color = vec4(u_Color,1.0f);"
+                                "  frag_color = vec4(outcolor, 1.0f);"
                                 "}";
 
   unsigned int shader_programme = CreateShader(vertex_shader, fragment_shader);
   glUseProgram(shader_programme);
 
-  int location = glGetUniformLocation(shader_programme, "u_Color");
-  glUniform3f(location, 0.1f, 0.3f, 0.8f);
+  //int location = glGetUniformLocation(shader_programme, "u_Color");
+  //glUniform3f(location, 0.1f, 0.3f, 0.8f);
 
   glClearColor(0.1, 0.1, 0.1, 0.5);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

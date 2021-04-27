@@ -10,40 +10,24 @@
 #include <math.h>
 
 int state;
-
-void print_mat(float points[])
-{
-  for (size_t i = 0; i < 3; i++)
-  {
-    for (size_t j = 0; j < 12; j++)
-    {
-      g_print("%f  ",points[i*3+j]);
-    }
-    g_print("\n");
-  }
-  g_print("\n");
-  g_print(" -------------------------------------\n");
-  g_print("\n");
-}
-
 gchar *soundfile;
 const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
 const float b = 0.850650808352039932; // ((1 + sqrt(5))/2) / sqrt(1 +(1 + sqrt(5))/2)²)
 
 // One dimensional matrix array[i][j] = array[i * cols + j]
-float points[36] = {
-    -a, 0.0, b,
-    a, 0.0, b,
-    -a, 0.0, -b,
-    a, 0.0, -b,
-    0.0, b, a,
-    0.0, b, -a,
-    0.0, -b, a,
-    0.0, -b, -a,
-    b, a, 0.0,
-    -b, a, 0.0,
-    b, -a, 0.0,
-    -b , -a, 0.0
+float points[72] = {
+    -a, 0.0, b, 0.5,0.02,0.48,
+    a, 0.0, b, 0.53,0.02,0.27,
+    -a, 0.0, -b, 0.23,0.84,0.49,
+    a, 0.0, -b, 0.18,0.41,0.55,
+    0.0, b, a, 0.26,0.65,0.6,
+    0.0, b, -a, 0.65,0.87,0.55,
+    0.0, -b, a, 0.96,0.42,0.37,
+    0.0, -b, -a, 0.4,0.74,0.42,
+    b, a, 0.0, 0.29,0.6,0.65,
+    -b, a, 0.0, 0.95,0.25,0.78,
+    b, -a, 0.0, 0.41,0.34,0.6,
+    -b , -a, 0.0, 0.44,0.63,0.18
 };
 
 // triangle connectivity
@@ -70,22 +54,61 @@ unsigned int indexes[60] = {
         7,11,2
 };
 
-unsigned int index_points;
-float points_sphere[2880];
-unsigned int indexes_sphere[2880];
+unsigned int index_points = 0;
+unsigned int index_sphere = 0;
+float points_sphere[126 * 2];
+unsigned int indexes_sphere[240];
 
 float normalization_value(float v[3]){
     float n = sqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     return n;
 }
 
-void add_triangle(float* v1, float* v2, float* v3, float points_array[]){
+/*void add_triangle(float* v1, float* v2, float* v3, float points_array[]){
     for(int i = 0; i < 3; i++){
         points_array[index_points + i] = v1[i];
         points_array[index_points + i + 3] = v2[i];
         points_array[index_points + i + 6] = v3[i];
     }
     index_points += 9;
+}*/
+
+void add_vertex(float v[3], float points_array[]){
+    for(int i = 0; i < 3; i++){
+        points_array[index_points + i] = v[i];
+    }
+    index_points += 3;
+    // Add color
+    for(int i = 0; i < 3; i++){
+        float x = rand() / (float) RAND_MAX;
+        points_array[index_points + i] = x;
+    }
+    index_points += 3;
+}
+
+int vertexAlreadyExist(float v[3]){
+    for(unsigned int i = 0; i < index_points / 6; i++){
+        if (v[0] == points_sphere[i * 6]){
+            if(v[1] == points_sphere[i * 6 + 1]){
+                if(v[2] == points_sphere[i * 6 + 2]){
+                    return i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+void add_to_arrays(float v[3], float points_array[]){
+    int current_index = vertexAlreadyExist(v);
+
+    if (current_index == - 1){
+        indexes_sphere[index_sphere] = index_points/6;
+        add_vertex(v, points_array);
+    }
+    else
+        indexes_sphere[index_sphere] = current_index;
+    index_sphere++;
 }
 
 void subdivide(float* v1, float* v2, float* v3, unsigned int SubdivisionCoef, float points_array[]) {
@@ -93,7 +116,9 @@ void subdivide(float* v1, float* v2, float* v3, unsigned int SubdivisionCoef, fl
     float n12, n23, n31;
 
     if (SubdivisionCoef == 0){
-        add_triangle(v1, v2, v3, points_array);
+        add_to_arrays(v1, points_array);
+        add_to_arrays(v2, points_array);
+        add_to_arrays(v3, points_array);
         return;
     }
 
@@ -124,9 +149,9 @@ void create_sphere(unsigned int nb_subdivision, float sphere_points_array[], flo
     float v3[3];
     for(int i = 0; i < 20; i++){
         for(int j = 0; j < 3; j++){
-            v1[j] = icosahedron_points[icosahedron_index[i * 3]  * 3 + j];
-            v2[j] = icosahedron_points[icosahedron_index[i * 3 + 1] * 3 + j];
-            v3[j] = icosahedron_points[icosahedron_index[i * 3 + 2]  * 3 + j];
+            v1[j] = icosahedron_points[icosahedron_index[i * 3]  * 6 + j];
+            v2[j] = icosahedron_points[icosahedron_index[i * 3 + 1] * 6 + j];
+            v3[j] = icosahedron_points[icosahedron_index[i * 3 + 2]  * 6 + j];
         }
         subdivide(v1, v2, v3, nb_subdivision, sphere_points_array);
     }
@@ -138,14 +163,14 @@ static gboolean render(GtkGLArea* area) {
   if(state == 1)
   {
     on_motion(points,12);
-    draw_triangle(points, indexes, 36, 60);
+    draw_triangle(points, indexes, 72, 60);
   }
 
   /* Icosphere */
   if(state == 2)
   {
-    on_motion(points_sphere,720 / 3);
-    draw_triangle(points_sphere, indexes_sphere, 720, 720);
+    on_motion(points_sphere, 126);
+    draw_triangle(points_sphere, indexes_sphere, 252, 240);
   }
   gtk_gl_area_queue_render(area);
   return TRUE;
@@ -206,9 +231,6 @@ int main() {
   gchar *filename;
 
   create_sphere(1, points_sphere, points, indexes);
-  for(int i = 0; i < 720; i++){
-      indexes_sphere[i] = i;
-  }
 
   gtk_init(NULL, NULL);
   builder = gtk_builder_new();
