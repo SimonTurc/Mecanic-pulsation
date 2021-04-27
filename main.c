@@ -9,6 +9,8 @@
 #include <errno.h>
 #include <math.h>
 
+int state;
+
 void print_mat(float points[])
 {
   for (size_t i = 0; i < 3; i++)
@@ -133,13 +135,18 @@ void create_sphere(unsigned int nb_subdivision, float sphere_points_array[], flo
 static gboolean render(GtkGLArea* area) {
 
   /* Icosahedron  */
-  //on_motion(points,12);
-  //draw_triangle(points, indexes, 36, 60);
+  if(state == 1)
+  {
+    on_motion(points,12);
+    draw_triangle(points, indexes, 36, 60);
+  }
 
   /* Icosphere */
-  //on_motion(points,720 / 3);
-  draw_triangle(points_sphere, indexes_sphere, 720, 720);
-
+  if(state == 2)
+  {
+    on_motion(points_sphere,720 / 3);
+    draw_triangle(points_sphere, indexes_sphere, 720, 720);
+  }
   gtk_gl_area_queue_render(area);
   return TRUE;
 }
@@ -168,6 +175,19 @@ static gboolean sound_player(GtkFileChooser* file_chooser)
   return TRUE;
 }
 
+static gboolean fucker(GtkComboBox* combo_box)
+{
+  if (gtk_combo_box_get_active (combo_box)== 0)
+  {
+    state =1;
+  }
+  else
+  {
+    state =2;
+  }
+  return TRUE;
+}
+
 void function_test() 
 { 
   g_print("Pass\n");
@@ -176,6 +196,7 @@ void function_test()
 int main() {
   GtkWidget *main_window;
   GtkWidget *gl_area;
+  GtkComboBox *combo_box;
   GtkButton *button_filter1;
   GtkButton *button_filter2;
   GtkButton *button_filter3;
@@ -204,12 +225,14 @@ int main() {
   button_filter1 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_1"));
   button_filter2 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_2"));
   button_filter3 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_3"));
-  button_filter3 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_3"));
   file_chooser_button = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_chooser"));
   gl_area = GTK_WIDGET(gtk_builder_get_object(builder, "OGLarea"));
+  combo_box = GTK_COMBO_BOX(gtk_builder_get_object(builder, "combo_box"));
 
   g_signal_connect(G_OBJECT(main_window), "destroy", (GCallback)gtk_main_quit,
                    NULL);
+  g_signal_connect(G_OBJECT(combo_box), "changed",
+                   G_CALLBACK(fucker), &state);
   g_signal_connect(G_OBJECT(button_filter1), "clicked",
                    G_CALLBACK(function_test), NULL);
   g_signal_connect(G_OBJECT(button_filter2), "clicked",

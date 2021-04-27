@@ -100,43 +100,14 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox">
+          <object class="GtkComboBoxText" id="combo_box">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="halign">center</property>
-            <property name="valign">center</property>
-            <child>
-              <object class="GtkCheckButton">
-                <property name="label" translatable="yes">Sphère</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">False</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="draw-indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="check_2">
-                <property name="label" translatable="yes">Icosahèdre</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">False</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="draw-indicator">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
+            <property name="active">1</property>
+            <items>
+              <item id="&lt;ico&gt;" translatable="yes">icosahèdre</item>
+              <item id="&lt;sphere&gt;" translatable="yes">sphère</item>
+            </items>
           </object>
           <packing>
             <property name="left-attach">0</property>
