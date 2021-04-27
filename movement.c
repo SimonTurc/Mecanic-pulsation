@@ -9,8 +9,8 @@ void on_motion(float point[],int nb_point)
     {
         if (point[i* 6 ] != 0 || point[i* 6 + 2] != 0)
         {
-            point[i*6] = point[i*6]* cosf(angle)+ point[i*6+2] * sinf(angle);
-            point[i*6 + 2]= -point[i*6] *sinf(angle)+ point[i*6+2]* cosf(angle);
+            point[i*6] = point[i*6]* cosf(angle)- point[i*6+2] * sinf(angle);
+            point[i*6 + 2]= point[i*6] *sinf(angle)+ point[i*6+2]* cosf(angle);
         } 
     }
 }
