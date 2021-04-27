@@ -2,7 +2,6 @@
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 static unsigned int CompileShader(unsigned int type, const char *source) {
   unsigned int id = glCreateShader(type);
@@ -39,7 +38,7 @@ static unsigned int CreateShader(const char *vertexShader,
   return program;
 }
 
-void draw_triangle(float points[]) {
+void draw_triangle(float points[], unsigned int indexes[], unsigned int buffer_size, unsigned int index_buffer_size) {
   //glewExperimental = GL_TRUE;
 
   GLenum error = glewInit();
@@ -52,29 +51,6 @@ void draw_triangle(float points[]) {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
 
-  unsigned int indexes[] = {
-          0,1,4,
-          0,4,9,
-          9,4,5,
-          4,8,5,
-          4,1,8,
-          8,1,10,
-          8,10,3,
-          5,8,3,
-          5,3,2,
-          2,3,7,
-          7,3,10,
-          7,10,6,
-          7,6,11,
-          11,6,0,
-          0,6,1,
-          6,10,1,
-          9,11,0,
-          9,2,11,
-          9,5,2,
-          7,11,2
-  };
-
   unsigned int vao;
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
@@ -82,44 +58,41 @@ void draw_triangle(float points[]) {
   unsigned int vb;
   glGenBuffers(1, &vb);
   glBindBuffer(GL_ARRAY_BUFFER, vb);
-  glBufferData(GL_ARRAY_BUFFER, 72 * sizeof(float), points,
+  glBufferData(GL_ARRAY_BUFFER, buffer_size * sizeof(float), points,
                GL_STATIC_DRAW);
 
   glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),(void *)(3 * sizeof(float)));
+  //glEnableVertexAttribArray(1);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+  //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),(void *)(3 * sizeof(float)));
 
   unsigned int ibo;
   glGenBuffers(1, &ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, 60 * sizeof(unsigned int), indexes,
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_size * sizeof(unsigned int), indexes,
                GL_STATIC_DRAW);
 
   const char *vertex_shader = "#version 450 core\n"
                               "layout (location = 0) in vec4 position;"
-                              "layout (location = 1) in vec3 aColor;"
-                              "out vec3 outcolor;"
                               "void main() {"
                               "   gl_Position = position;"
-                              "   outcolor = aColor;"
                               "}";
 
   const char *fragment_shader = "#version 450 core\n"
                                 "out vec4 frag_color;"
-                                "in vec3 outcolor;"
+                                "uniform vec3 u_Color;"
                                 "void main() {"
-                                "  frag_color = vec4(outcolor, 0.0f);"
+                                "  frag_color = vec4(u_Color,1.0f);"
                                 "}";
 
   unsigned int shader_programme = CreateShader(vertex_shader, fragment_shader);
   glUseProgram(shader_programme);
 
-  //int location = glGetUniformLocation(shader_programme, "u_Color");
-  //glUniform4f(location, 0.1f, 0.3f, 0.8f, 1.0f);
+  int location = glGetUniformLocation(shader_programme, "u_Color");
+  glUniform3f(location, 0.1f, 0.3f, 0.8f);
 
-  glClearColor(0.0, 0.5, 0.3, 0.5);
+  glClearColor(0.1, 0.1, 0.1, 0.5);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glDrawElements(GL_TRIANGLES, 60, GL_UNSIGNED_INT, NULL);
+  glDrawElements(GL_TRIANGLES, index_buffer_size, GL_UNSIGNED_INT, NULL);
 }

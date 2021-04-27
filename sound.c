@@ -112,10 +112,10 @@ void play_sound(char *file) {
   SDL_Quit();
 }
 
-int main(int argc, char *argv[]) {
+/*int main(int argc, char *argv[]) {
   if (argc != 2)
     errx(EXIT_FAILURE, "./sound [path]");
 
   play_sound(argv[1]);
   return EXIT_SUCCESS;
-}
+}*/

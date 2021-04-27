@@ -7,34 +7,15 @@
 #include <wait.h>
 #include <err.h>
 #include <errno.h>
-
-const float a = 0.525731112119133606;
-const float b = 0.850650808352039932;
-
-float points[] = {
-    -a, 0.0, b, 1.0f, 1.0f, 1.0f,
-    a, 0.0, b, 1.0f, 1.0f, 1.0f,
-    -a, 0.0, -b, 0.0f, 0.0f, 0.0f,
-    a, 0.0, -b, 1.0f, 1.0f, 1.0f,
-    0.0, b, a, 0.0f, 0.0f, 0.0f,
-    0.0, b, -a, 1.0f, 1.0f, 1.0f,
-    0.0, -b, a, 0.0f, 0.0f, 0.0f,
-    0.0, -b, -a, 1.0f, 1.0f, 1.0f,
-    b, a, 0.0, 0.0f, 0.0f, 0.0f,
-    -b, a, 0.0, 0.0f, 0.0f, 0.0f,
-    b, -a, 0.0, 0.0f, 0.0f, 0.0f,
-    -b , -a, 0.0, 1.0f, 1.0f, 1.0f,
-};
-
-gchar *soundfile;
+#include <math.h>
 
 void print_mat(float points[])
 {
-  for (size_t i = 0; i < 12; i++)
+  for (size_t i = 0; i < 3; i++)
   {
     for (size_t j = 0; j < 12; j++)
     {
-      g_print("%f  ",points[i*6+j]);
+      g_print("%f  ",points[i*3+j]);
     }
     g_print("\n");
   }
@@ -43,13 +24,122 @@ void print_mat(float points[])
   g_print("\n");
 }
 
+gchar *soundfile;
+const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
+const float b = 0.850650808352039932; // ((1 + sqrt(5))/2) / sqrt(1 +(1 + sqrt(5))/2)²)
+
+// One dimensional matrix array[i][j] = array[i * cols + j]
+float points[36] = {
+    -a, 0.0, b,
+    a, 0.0, b,
+    -a, 0.0, -b,
+    a, 0.0, -b,
+    0.0, b, a,
+    0.0, b, -a,
+    0.0, -b, a,
+    0.0, -b, -a,
+    b, a, 0.0,
+    -b, a, 0.0,
+    b, -a, 0.0,
+    -b , -a, 0.0
+};
+
+// triangle connectivity
+unsigned int indexes[60] = {
+        0,1,4,
+        0,4,9,
+        9,4,5,
+        4,8,5,
+        4,1,8,
+        8,1,10,
+        8,10,3,
+        5,8,3,
+        5,3,2,
+        2,3,7,
+        7,3,10,
+        7,10,6,
+        7,6,11,
+        11,6,0,
+        0,6,1,
+        6,10,1,
+        9,11,0,
+        9,2,11,
+        9,5,2,
+        7,11,2
+};
+
+unsigned int index_points;
+float points_sphere[2880];
+unsigned int indexes_sphere[2880];
+
+float normalization_value(float v[3]){
+    float n = sqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    return n;
+}
+
+void add_triangle(float* v1, float* v2, float* v3, float points_array[]){
+    for(int i = 0; i < 3; i++){
+        points_array[index_points + i] = v1[i];
+        points_array[index_points + i + 3] = v2[i];
+        points_array[index_points + i + 6] = v3[i];
+    }
+    index_points += 9;
+}
+
+void subdivide(float* v1, float* v2, float* v3, unsigned int SubdivisionCoef, float points_array[]) {
+    float v12[3], v23[3], v31[3];
+    float n12, n23, n31;
+
+    if (SubdivisionCoef == 0){
+        add_triangle(v1, v2, v3, points_array);
+        return;
+    }
+
+    for(int i = 0; i < 3; i++){
+        v12[i] = (v1[i] + v2[i]) / 2.0;
+        v23[i] = (v2[i] + v3[i]) / 2.0;
+        v31[i] = (v3[i] + v1[i]) / 2.0;
+    }
+
+    n12 = normalization_value(v12);
+    n23 = normalization_value(v23);
+    n31 = normalization_value(v31);
+    
+    for(int j = 0; j < 3; j++){
+        v12[j] /= n12;
+        v23[j] /= n23;
+        v31[j] /= n31;
+    }
+    subdivide(v1, v12, v31, SubdivisionCoef - 1, points_array);
+    subdivide(v2, v23, v12, SubdivisionCoef - 1, points_array);
+    subdivide(v3, v31, v23, SubdivisionCoef - 1, points_array);
+    subdivide(v12, v23, v31, SubdivisionCoef - 1, points_array);
+}
+
+void create_sphere(unsigned int nb_subdivision, float sphere_points_array[], float icosahedron_points[], unsigned int icosahedron_index[]){
+    float v1[3];
+    float v2[3];
+    float v3[3];
+    for(int i = 0; i < 20; i++){
+        for(int j = 0; j < 3; j++){
+            v1[j] = icosahedron_points[icosahedron_index[i * 3]  * 3 + j];
+            v2[j] = icosahedron_points[icosahedron_index[i * 3 + 1] * 3 + j];
+            v3[j] = icosahedron_points[icosahedron_index[i * 3 + 2]  * 3 + j];
+        }
+        subdivide(v1, v2, v3, nb_subdivision, sphere_points_array);
+    }
+}
+
 static gboolean render(GtkGLArea* area) {
-  //on_motion(icotri,60);
-  //g_print("%li\n",sizeof(icotri));
-  on_motion(points,60);
-  //print_mat(points);
-  draw_triangle(points);
-  //draw_triangle(icotri);
+
+  /* Icosahedron  */
+  //on_motion(points,12);
+  //draw_triangle(points, indexes, 36, 60);
+
+  /* Icosphere */
+  //on_motion(points,720 / 3);
+  draw_triangle(points_sphere, indexes_sphere, 720, 720);
+
   gtk_gl_area_queue_render(area);
   return TRUE;
 }
@@ -93,7 +183,12 @@ int main() {
   GtkBuilder *builder;
   GError *error;
   gchar *filename;
-  
+
+  create_sphere(1, points_sphere, points, indexes);
+  for(int i = 0; i < 720; i++){
+      indexes_sphere[i] = i;
+  }
+
   gtk_init(NULL, NULL);
   builder = gtk_builder_new();
   filename = g_build_filename("window.glade", NULL);
@@ -104,6 +199,7 @@ int main() {
     g_error_free(error);
     return error->code;
   }
+
   main_window = GTK_WIDGET(gtk_builder_get_object(builder, "MainWindow"));
   button_filter1 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_1"));
   button_filter2 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_2"));
