@@ -106,6 +106,7 @@
             <property name="active">1</property>
             <items>
               <item id="&lt;ico&gt;" translatable="yes">icosahèdre</item>
+              <item id="&lt; &gt;" translatable="yes"> </item>
               <item id="&lt;sphere&gt;" translatable="yes">sphère</item>
             </items>
           </object>

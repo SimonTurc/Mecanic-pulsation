@@ -14,6 +14,10 @@ gchar *soundfile;
 const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
 const float b = 0.850650808352039932; // ((1 + sqrt(5))/2) / sqrt(1 +(1 + sqrt(5))/2)²)
 
+float sst[6] = {0.0, 0.0, 0.0,0.1, 0.1, 0.1};
+
+unsigned ssts[1] = {0};
+
 // One dimensional matrix array[i][j] = array[i * cols + j]
 float points[72] = {
     -a, 0.0, b, 0.5,0.02,0.48,
@@ -159,6 +163,12 @@ void create_sphere(unsigned int nb_subdivision, float sphere_points_array[], flo
 
 static gboolean render(GtkGLArea* area) {
 
+  /* Nothing  */
+  if(state == 0)
+  {
+    draw_triangle(sst, ssts, 6, 1);
+  }
+
   /* Icosahedron  */
   if(state == 1)
   {
@@ -202,13 +212,20 @@ static gboolean sound_player(GtkFileChooser* file_chooser)
 
 static gboolean modele(GtkComboBox* combo_box)
 {
-  if (gtk_combo_box_get_active (combo_box)== 0)
+  switch (gtk_combo_box_get_active (combo_box))
   {
-    state =1;
-  }
-  else
-  {
-    state =2;
+    case 0:
+    state = 1;
+    break;
+
+    case 1:
+    state = 0;
+    break;
+
+    case 2:
+    state = 2;
+    break;
+
   }
   return TRUE;
 }
