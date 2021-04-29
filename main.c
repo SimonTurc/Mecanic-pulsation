@@ -169,7 +169,7 @@ static gboolean render(GtkGLArea* area) {
   /* Icosphere */
   if(state == 2)
   {
-    on_motion(points_sphere, 126);
+    on_motion(points_sphere, 42);
     draw_triangle(points_sphere, indexes_sphere, 252, 240);
   }
   gtk_gl_area_queue_render(area);
@@ -200,7 +200,7 @@ static gboolean sound_player(GtkFileChooser* file_chooser)
   return TRUE;
 }
 
-static gboolean fucker(GtkComboBox* combo_box)
+static gboolean modele(GtkComboBox* combo_box)
 {
   if (gtk_combo_box_get_active (combo_box)== 0)
   {
@@ -231,6 +231,8 @@ int main() {
   gchar *filename;
 
   create_sphere(1, points_sphere, points, indexes);
+  scaling(points_sphere,42,0.85);
+  scaling(points,12,0.85);
 
   gtk_init(NULL, NULL);
   builder = gtk_builder_new();
@@ -254,7 +256,7 @@ int main() {
   g_signal_connect(G_OBJECT(main_window), "destroy", (GCallback)gtk_main_quit,
                    NULL);
   g_signal_connect(G_OBJECT(combo_box), "changed",
-                   G_CALLBACK(fucker), &state);
+                   G_CALLBACK(modele), &state);
   g_signal_connect(G_OBJECT(button_filter1), "clicked",
                    G_CALLBACK(function_test), NULL);
   g_signal_connect(G_OBJECT(button_filter2), "clicked",
