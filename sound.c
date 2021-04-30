@@ -3,6 +3,7 @@
 #include <err.h>
 #include <math.h>
 
+
 int SamplesSum(int start, int end, Uint8 *buffer)
 {
   int n = 0;//Int to stock the sum
@@ -13,6 +14,31 @@ int SamplesSum(int start, int end, Uint8 *buffer)
     }
   return n;
 }
+
+/*float LowPassCoef()
+{ // That calculates the coefficient that will be apply to each sample
+  float RC = 1.0/(441 * 2 * M_PI);//Normalizing
+  float dt = 1.0/44100; //Gives us the invert of the frequency
+  float fBeta = dt/(RC+dt);//Creating the coefficient 0<fBeta<1 (fBeta for FloatBeta)
+  return fBeta;
+  
+}
+
+void LowPassEdit(Uint8 *buffer, int length, float fBeta){//Edit the buffer of sample 
+  float FinalBeta;
+  if(length != 0)
+    for(int i = length; i > 0; i--)
+      {
+	FinalBeta = fBeta * (float) buffer[i] + (1.0 - fBeta) * (float) buffer[i-1];//Formula of low pass filter
+	buffer[i] = (int) FinalBeta;  
+      }
+}
+
+void LowPassFilter(Uint8 *buffer, int length){// Just apply the filter
+  float fBeta = LowPassCoef();
+  printf("%f\n", fBeta);
+  LowPassEdit(buffer, length, fBeta);
+  }*/
 
 void play_sound(char *file) {
 
@@ -42,7 +68,8 @@ void play_sound(char *file) {
   }
   int nbsamples = 441;//nombre de samples par index du tableau (44100/100ms)
 
-  float sound_time = sound->alen/44100.0;// Durée de l'audio
+  printf("%i\n", sound->alen);
+  float sound_time = sound->alen/(44100.0);// Durée de l'audio
  
   //If I have 44100 samples per sec, and I want 100 values for 1 sec
   //It means that there are 441samples per value
@@ -58,17 +85,23 @@ void play_sound(char *file) {
   int quarterpulsation[intsize];//Quarter pulsation
 
   //Time to edit the abuf to get a new audio
-  for (Uint32 i = 0; i < sound->alen;++i) {
-    if(i > 100000 && i < 120000)
-      printf("Index_1: %i ; Samples: %d\n", i, sound->abuf[i]);
-    double x = (double) sound->abuf[i];
-    double y = x*sin(2.3);  
-    sound->abuf[i] = (int) y;
-    if(i > 100000 && i < 120000)
-      printf("Index_2: %i ; Samples: %d\n", i, sound->abuf[i]);
+  for (Uint32 i = 0; i < sound->alen/2; i++) {
+    //sound->abuf[i] += 200;
+    sound->abuf[i+sound->alen/2] = sound->abuf[i]; 
+    //double x = (double) sound->abuf[i];
+    //double y = x*sin(2.3);  
+    //sound->abuf[i] = (int) y;
+    //sound->abuf[i] = sound->abuf[i-1];
+      //if(i > 100000 && i < 120000)
+      //printf("Index_2: %i ; Samples: %d\n", i, sound->abuf[i]);
     
+      }
+  //LowPassFilter(sound->abuf, sound->alen);// We apply the filter to the array of samples.
+  for (Uint32 i = 0; i < sound->alen;++i) {
+    if(i > 100000 && i < 100300)
+      printf("LowPassFilter: %i ; Samples: %i\n", i, sound->abuf[i]);
   }
-
+  printf("%i\n", sound->alen);
   //Now we have to fill the array with the sum of each 441 samples.
   printf("Audio time: %f \nSize: %f \nReal_size: %i\n", sound_time, size, intsize);
   //First a loop starting at 0 to intsize
@@ -76,13 +109,13 @@ void play_sound(char *file) {
   //Obviously, there will be few loses of data approximatly < 0.01
   //Lastly print the array
   //Furthermore to get a nice curve, we can take the same array but each value will get divided by 2 and 3 and 4 maybe
-  for(int i=0; i < intsize; i++)
+  /*for(int i=0; i < intsize; i++)
     {
       fullpulsation[i] = SamplesSum(i*441, (i+1)*441, sound->abuf)/nbsamples;
       semipulsation[i] = fullpulsation[i]/2;
       thirthpulsation[i] = fullpulsation[i]/3;
       quarterpulsation[i] = fullpulsation[i]/4;
-    }
+      }*/
   /*for(int j=0; j < intsize; j++)
     {
       printf("Index: %i -> FullSum = %i ; SemiSum = %i ; ThirthSum = %i ; QuarterSum = %i\n", j, fullpulsation[j], semipulsation[j], thirthpulsation[j], quarterpulsation[j]);
@@ -112,10 +145,10 @@ void play_sound(char *file) {
   SDL_Quit();
 }
 
-/*int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   if (argc != 2)
     errx(EXIT_FAILURE, "./sound [path]");
 
   play_sound(argv[1]);
   return EXIT_SUCCESS;
-}*/
+}
