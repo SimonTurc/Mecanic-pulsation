@@ -4,17 +4,17 @@
 void on_motion(float point[],int nb_point)
 // Origin is 0 , 0 , 0
 {
-    float angle = (4*M_PI)/180; // angle de rotation en degré
+    float angle = (2*M_PI)/180; // angle de rotation en degré
     float alpha = cos(angle);
     float beta = sin(angle);
     float a ;
     if (cos(angle)<0)
     {
-      a = -0.00246;
+      a = -0.0006;
     }
     else
     {
-      a = 0.00246;
+      a = 0.0006;
     }
     for (int i = 0; i < nb_point; i++)
     {

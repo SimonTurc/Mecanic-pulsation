@@ -17,7 +17,6 @@ static unsigned int CompileShader(unsigned int type, const char *source) {
     glGetShaderInfoLog(id, length, &length, message);
     errx(1, "%s", message);
   }
-
   return id;
 }
 

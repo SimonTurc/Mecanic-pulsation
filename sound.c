@@ -1,7 +1,6 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
 #include <err.h>
 #include <math.h>
+#include "sound.h"
 
 
 int SamplesSum(int start, int end, Uint8 *buffer)
@@ -144,11 +143,11 @@ void play_sound(char *file) {
   Mix_CloseAudio();
   SDL_Quit();
 }
-
+/*
 int main(int argc, char *argv[]) {
   if (argc != 2)
     errx(EXIT_FAILURE, "./sound [path]");
 
   play_sound(argv[1]);
   return EXIT_SUCCESS;
-}
+}*/
