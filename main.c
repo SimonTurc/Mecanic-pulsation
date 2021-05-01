@@ -9,10 +9,17 @@
 #include <errno.h>
 #include <math.h>
 
+
 int state;
 gchar *soundfile;
 const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
 const float b = 0.850650808352039932; // ((1 + sqrt(5))/2) / sqrt(1 +(1 + sqrt(5))/2)²)
+
+float float_rand(float mini, float maxi)
+{
+    float scale = rand() / (float) RAND_MAX;
+    return mini + scale * ( maxi - mini );
+}
 
 float sst[6] = {0.0, 0.0, 0.0,0.1, 0.1, 0.1};
 
@@ -186,6 +193,29 @@ static gboolean render(GtkGLArea* area) {
   return TRUE;
 }
 
+void* worker2(void* arg){
+  float* deformation_factors = arg;
+  for(int i = 0; i < 10; i++){
+    int randomPoint = rand() % 42;
+    for(int j = 0; j < 42; j += 8)
+      deformation(points_sphere, j, deformation_factors[i]);
+    sleep(1);
+    for(int x = 0; x < 42; x += 8)
+      deformation(points_sphere, x, 1/deformation_factors[i]);
+  }
+  return EXIT_SUCCESS;
+}
+
+void deformation_shape(float* deformation_factors){
+  pthread_t thr;
+  int e = pthread_create(&thr,NULL,worker2,(void*)deformation_factors);
+  if(e != 0)
+  {
+    errno = e;
+    err(EXIT_FAILURE,"pthread create()");
+  }
+}
+
 void * worker(void* arg)
 {
   GtkFileChooser * file_chooser = arg ;
@@ -205,7 +235,7 @@ static gboolean sound_player(GtkFileChooser* file_chooser)
   if(e != 0)
   {
     errno = e;
-    err(EXIT_FAILURE,"pthead create()");
+    err(EXIT_FAILURE,"pthread create()");
   }
   return TRUE;
 }
@@ -248,8 +278,13 @@ int main() {
   gchar *filename;
 
   create_sphere(1, points_sphere, points, indexes);
-  scaling(points_sphere,42,0.85);
-  scaling(points,12,0.85);
+  scaling(points_sphere,42,0.7);
+  scaling(points,12,0.7);
+  float deformation_factors[6000];
+  for(int i = 0; i < 10; i++){
+    deformation_factors[i] = float_rand(1.1, 1.428);
+  }
+  //deformation_shape(deformation_factors);
 
   gtk_init(NULL, NULL);
   builder = gtk_builder_new();
