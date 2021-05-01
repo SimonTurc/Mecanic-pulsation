@@ -8,7 +8,7 @@
 #include <err.h>
 #include <errno.h>
 #include <math.h>
-
+#include <time.h>
 
 int state;
 gchar *soundfile;
@@ -193,15 +193,25 @@ static gboolean render(GtkGLArea* area) {
   return TRUE;
 }
 
+
 void* worker2(void* arg){
   float* deformation_factors = arg;
-  for(int i = 0; i < 10; i++){
+  for(int i = 0; i < 600; i++){
     int randomPoint = rand() % 42;
-    for(int j = 0; j < 42; j += 8)
-      deformation(points_sphere, j, deformation_factors[i]);
-    sleep(1);
-    for(int x = 0; x < 42; x += 8)
-      deformation(points_sphere, x, 1/deformation_factors[i]);
+    float x = sqrtf(deformation_factors[i]);
+    deformation(points_sphere, randomPoint, x);
+    if(randomPoint > 0 && randomPoint < 42){
+      deformation(points_sphere, randomPoint + 1, x);
+      deformation(points_sphere, randomPoint - 1, x);
+    }
+    usleep(100000);
+    deformation(points_sphere, randomPoint, x);
+    usleep(100000);
+    deformation(points_sphere, randomPoint, 1/deformation_factors[i]);
+    if(randomPoint > 0 && randomPoint < 42){
+      deformation(points_sphere, randomPoint + 1, 1/x);
+      deformation(points_sphere, randomPoint - 1, 1/x);
+    }
   }
   return EXIT_SUCCESS;
 }
@@ -277,15 +287,6 @@ int main() {
   GError *error;
   gchar *filename;
 
-  create_sphere(1, points_sphere, points, indexes);
-  scaling(points_sphere,42,0.7);
-  scaling(points,12,0.7);
-  float deformation_factors[6000];
-  for(int i = 0; i < 10; i++){
-    deformation_factors[i] = float_rand(1.1, 1.428);
-  }
-  //deformation_shape(deformation_factors);
-
   gtk_init(NULL, NULL);
   builder = gtk_builder_new();
   filename = g_build_filename("window.glade", NULL);
@@ -320,6 +321,17 @@ int main() {
   g_signal_connect(G_OBJECT(gl_area), "render", G_CALLBACK(render), NULL);
   
   gtk_widget_show_all(main_window);
+
+
+  create_sphere(1, points_sphere, points, indexes);
+  scaling(points_sphere,42,0.6);
+  scaling(points,12,0.6);
+  float deformation_factors[2000];
+  for(int i = 0; i < 600; i++){
+    deformation_factors[i] = float_rand(1.1, 1.55);
+  }
+  deformation_shape(deformation_factors);
+  
   gtk_main();
 
   return 0;
