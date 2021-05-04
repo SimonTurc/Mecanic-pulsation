@@ -1,6 +1,7 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <err.h>
 #include <math.h>
-#include "sound.h"
 
 
 int SamplesSum(int start, int end, Uint8 *buffer)
@@ -12,6 +13,82 @@ int SamplesSum(int start, int end, Uint8 *buffer)
       start++;
     }
   return n;
+}
+
+void swap(int *a, int *b)
+{
+  int temp = *a;
+  *a = *b;
+  *b = temp;
+}
+
+int partition(int *array, int low_index, int high_index)
+{
+  int pivot = array[high_index];//Value for which elements will be replaced in the array
+  int i = (low_index -1);
+
+  for(int j = low_index; j <= high_index - 1; j++)
+    {
+      //if current element is smaller than the pivot
+      if(array[j] < pivot)
+	{
+	  i++;//++ the index of the smallest element
+	  swap(&array[i], &array[j]);
+	}
+    }
+  swap(&array[i+1], &array[high_index]);
+  return (i+1);
+  
+}
+
+//low_index = starting index
+//high_index = ending index
+void quickSort(int *array, int low_index, int high_index)
+{
+  if(low_index < high_index)
+    {
+      //parv is partitioning index, array[parv] is now at the right place
+      int parv = partition(array, low_index, high_index);
+
+      //Now sort element before
+      //and after parv
+      quickSort(array, low_index,parv-1);
+      quickSort(array, parv+1, high_index);
+    }
+  	
+}
+
+float average(int *arr, int intsize)
+{
+  float fintsize = (float) intsize;
+  float average_value = 0.0;
+  for(int i = 0; i < intsize; i++)
+    {
+      average_value += (float) arr[i];
+    }
+  average_value= average_value/fintsize;
+  return average_value;
+}
+
+float variance(int *arr, int array_size, float average_value)
+{
+  float variance = 0;
+  for(int i=0; i < intsize; i++)
+    {
+      variance += ((float) arr[i] - average_value) * ((float) arr[i] - average_value);
+    }
+  variance = variance/(float) intsize;
+  return variance;
+}
+
+float ecart_type(int *arr, int array_size)
+{
+  float average_value = average(arr, array_size);
+  printf("%f \n", average_value);
+  float variance_value = variance(arr, array_size, average_value);
+  printf("Variance: %f \n", variance_value);
+  float ecart_type_value = sqrt(variance);
+  printf("Ecart_type: %f\n", ecart_type_value);
 }
 
 /*float LowPassCoef()
@@ -26,7 +103,7 @@ int SamplesSum(int start, int end, Uint8 *buffer)
 void LowPassEdit(Uint8 *buffer, int length, float fBeta){//Edit the buffer of sample 
   float FinalBeta;
   if(length != 0)
-    for(int i = length; i > 0; i--)
+    for(int i = 0; i < length; i++)
       {
 	FinalBeta = fBeta * (float) buffer[i] + (1.0 - fBeta) * (float) buffer[i-1];//Formula of low pass filter
 	buffer[i] = (int) FinalBeta;  
@@ -83,19 +160,9 @@ void play_sound(char *file) {
   int thirthpulsation[intsize];//Thirth pulsation 
   int quarterpulsation[intsize];//Quarter pulsation
 
-  //Time to edit the abuf to get a new audio
-  for (Uint32 i = 0; i < sound->alen/2; i++) {
-    //sound->abuf[i] += 200;
-    sound->abuf[i+sound->alen/2] = sound->abuf[i]; 
-    //double x = (double) sound->abuf[i];
-    //double y = x*sin(2.3);  
-    //sound->abuf[i] = (int) y;
-    //sound->abuf[i] = sound->abuf[i-1];
-      //if(i > 100000 && i < 120000)
-      //printf("Index_2: %i ; Samples: %d\n", i, sound->abuf[i]);
-    
-      }
+  //printf("Before %i -> %i \n", sound->abuf[50000], sound->abuf[50001]); 
   //LowPassFilter(sound->abuf, sound->alen);// We apply the filter to the array of samples.
+  //printf("Before %i -> %i \n", sound->abuf[50000], sound->abuf[50001]);
   for (Uint32 i = 0; i < sound->alen;++i) {
     if(i > 100000 && i < 100300)
       printf("LowPassFilter: %i ; Samples: %i\n", i, sound->abuf[i]);
@@ -108,29 +175,34 @@ void play_sound(char *file) {
   //Obviously, there will be few loses of data approximatly < 0.01
   //Lastly print the array
   //Furthermore to get a nice curve, we can take the same array but each value will get divided by 2 and 3 and 4 maybe
-  /*for(int i=0; i < intsize; i++)
+  for(int i=0; i < intsize; i++)
     {
       fullpulsation[i] = SamplesSum(i*441, (i+1)*441, sound->abuf)/nbsamples;
-      semipulsation[i] = fullpulsation[i]/2;
-      thirthpulsation[i] = fullpulsation[i]/3;
-      quarterpulsation[i] = fullpulsation[i]/4;
-      }*/
-  /*for(int j=0; j < intsize; j++)
+      //semipulsation[i] = fullpulsation[i]/2;
+      //thirthpulsation[i] = fullpulsation[i]/3;
+      //quarterpulsation[i] = fullpulsation[i]/4;
+      }
+  
+  int median[intsize];
+  for(int i = 0; i < intsize; i++)
+    median[i] = fullpulsation[i];
+  quickSort(median, 0, intsize-1);
+  for(int i = 0; i < intsize; i++)
     {
-      printf("Index: %i -> FullSum = %i ; SemiSum = %i ; ThirthSum = %i ; QuarterSum = %i\n", j, fullpulsation[j], semipulsation[j], thirthpulsation[j], quarterpulsation[j]);
-    }*/
-  //To print samples
-  /*for (Uint32 i = 0; i < sound->alen;++i) {
-      printf("Samples: %d\n", sound->abuf[i]);
-      }*/
+      printf("Index: %i, Value: %i \n", i, median[i]);
+    }
+  int median_value = median[intsize/2];
+  printf("%i \n", median_value);
+  ecart_type(median, intsize);
+  
   /*FILE *fptr;
   fptr = fopen("value.txt","w");
   fprintf(fptr,"[");
-  for (Uint32 i = 0; i < 630; ++i) {
+  for (Uint32 i = 0; i < 20000; ++i) {
     if (i == (sound->alen) - 1)
-      fprintf(fptr, "%d", fullpulsation[i]);
+      fprintf(fptr, "%d", sound->abuf[i]);
     else
-      fprintf(fptr, "%d,", fullpulsation[i]);
+      fprintf(fptr, "%d,", sound->abuf[i]);
   }
   fprintf(fptr,"]");
 
@@ -143,11 +215,11 @@ void play_sound(char *file) {
   Mix_CloseAudio();
   SDL_Quit();
 }
-/*
-int main(int argc, char *argv[]) {
+
+/*int main(int argc, char *argv[]) {
   if (argc != 2)
     errx(EXIT_FAILURE, "./sound [path]");
 
   play_sound(argv[1]);
   return EXIT_SUCCESS;
-}*/
+  }*/
