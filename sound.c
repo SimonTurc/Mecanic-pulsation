@@ -74,17 +74,20 @@ float variance(int *arr, int array_size, float average_value)
   for(int i=0; i < array_size; i++)
     {
       variance += ((float) arr[i] - average_value) * ((float) arr[i] - average_value);
+      //printf("val %i %f \n", i, (float) arr[i] - average_value);
     }
+  //printf("Variance1: %f \n", variance);
   variance = variance/(float) array_size;
+  //printf("%i \n", array_size);
   return variance;
 }
 
 double ecart_type(int *arr, int array_size)
 {
   float average_value = average(arr, array_size);
-  printf("%f \n", average_value);
+  //printf("%f \n", average_value);
   float variance_value = variance(arr, array_size, average_value);
-  printf("Variance: %f \n", variance_value);
+  //printf("Variance: %f \n", variance_value);
   double dvariance = (double) variance_value;
   double ecart_type_value = sqrtf(dvariance);
   return ecart_type_value;
@@ -162,11 +165,11 @@ void play_sound(char *file) {
   //printf("Before %i -> %i \n", sound->abuf[50000], sound->abuf[50001]); 
   //LowPassFilter(sound->abuf, sound->alen);// We apply the filter to the array of samples.
   //printf("Before %i -> %i \n", sound->abuf[50000], sound->abuf[50001]);
-  for (Uint32 i = 0; i < sound->alen;++i) {
+  /*for (Uint32 i = 0; i < sound->alen;++i) {
     if(i > 100000 && i < 100300)
       printf("LowPassFilter: %i ; Samples: %i\n", i, sound->abuf[i]);
   }
-  printf("%i\n", sound->alen);
+  printf("%i\n", sound->alen);*/
   //Now we have to fill the array with the sum of each 441 samples.
   printf("Audio time: %f \nSize: %f \nReal_size: %i\n", sound_time, size, intsize);
   //First a loop starting at 0 to intsize
@@ -186,10 +189,10 @@ void play_sound(char *file) {
   for(int i = 0; i < intsize; i++)
     median[i] = fullpulsation[i];
   quickSort(median, 0, intsize-1);
-  for(int i = 0; i < intsize; i++)
-    {
-      printf("Index: %i, Value: %i \n", i, median[i]);
-    }
+  //for(int i = 0; i < intsize; i++)
+  //{
+  //  printf("Index: %i, Value: %i \n", i, median[i]);
+  //}
   int median_value = median[intsize/2];
   printf("%i \n", median_value);
   float ecart_type_value = ecart_type(median, intsize);
