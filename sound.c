@@ -85,8 +85,8 @@ double ecart_type(int *arr, int array_size)
   printf("%f \n", average_value);
   float variance_value = variance(arr, array_size, average_value);
   printf("Variance: %f \n", variance_value);
-  double dvariance = (double) variance;
-  double ecart_type_value = sqrt(dvariance);
+  double dvariance = (double) variance_value;
+  double ecart_type_value = sqrtf(dvariance);
   return ecart_type_value;
 }
 
