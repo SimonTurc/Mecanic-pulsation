@@ -1,8 +1,6 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
 #include <err.h>
 #include <math.h>
-
+#include "sound.h"
 
 int SamplesSum(int start, int end, Uint8 *buffer)
 {
@@ -73,22 +71,23 @@ float average(int *arr, int intsize)
 float variance(int *arr, int array_size, float average_value)
 {
   float variance = 0;
-  for(int i=0; i < intsize; i++)
+  for(int i=0; i < array_size; i++)
     {
       variance += ((float) arr[i] - average_value) * ((float) arr[i] - average_value);
     }
-  variance = variance/(float) intsize;
+  variance = variance/(float) array_size;
   return variance;
 }
 
-float ecart_type(int *arr, int array_size)
+double ecart_type(int *arr, int array_size)
 {
   float average_value = average(arr, array_size);
   printf("%f \n", average_value);
   float variance_value = variance(arr, array_size, average_value);
   printf("Variance: %f \n", variance_value);
-  float ecart_type_value = sqrt(variance);
-  printf("Ecart_type: %f\n", ecart_type_value);
+  double dvariance = (double) variance;
+  double ecart_type_value = sqrt(dvariance);
+  return ecart_type_value;
 }
 
 /*float LowPassCoef()
@@ -156,9 +155,9 @@ void play_sound(char *file) {
 
   //Creating few arrays that will be used to create a smooth spike 
   int fullpulsation[intsize];//Principal pulsation
-  int semipulsation[intsize];//Semi pulsation
-  int thirthpulsation[intsize];//Thirth pulsation 
-  int quarterpulsation[intsize];//Quarter pulsation
+  //int semipulsation[intsize];//Semi pulsation
+  //int thirthpulsation[intsize];//Thirth pulsation 
+  //int quarterpulsation[intsize];//Quarter pulsation
 
   //printf("Before %i -> %i \n", sound->abuf[50000], sound->abuf[50001]); 
   //LowPassFilter(sound->abuf, sound->alen);// We apply the filter to the array of samples.
@@ -193,8 +192,8 @@ void play_sound(char *file) {
     }
   int median_value = median[intsize/2];
   printf("%i \n", median_value);
-  ecart_type(median, intsize);
-  
+  float ecart_type_value = ecart_type(median, intsize);
+  printf("ETV: %f \n", ecart_type_value);
   /*FILE *fptr;
   fptr = fopen("value.txt","w");
   fprintf(fptr,"[");
