@@ -101,7 +101,6 @@ double ecart_type(int *arr, int array_size)
   return fBeta;
   
 }
-
 void LowPassEdit(Uint8 *buffer, int length, float fBeta){//Edit the buffer of sample 
   float FinalBeta;
   if(length != 0)
@@ -111,7 +110,6 @@ void LowPassEdit(Uint8 *buffer, int length, float fBeta){//Edit the buffer of sa
 	buffer[i] = (int) FinalBeta;  
       }
 }
-
 void LowPassFilter(Uint8 *buffer, int length){// Just apply the filter
   float fBeta = LowPassCoef();
   printf("%f\n", fBeta);
@@ -201,7 +199,6 @@ void play_sound(char *file) {
       fprintf(fptr, "%d,", sound->abuf[i]);
   }
   fprintf(fptr,"]");
-
   fclose(fptr);*/
 
   while (Mix_Playing(0)) {
@@ -215,7 +212,6 @@ void play_sound(char *file) {
 int main(int argc, char *argv[]) {
   if (argc != 2)
     errx(EXIT_FAILURE, "./sound [path]");
-
   play_sound(argv[1]);
   return EXIT_SUCCESS;
   }

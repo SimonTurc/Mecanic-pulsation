@@ -2,31 +2,31 @@
 #include "sound_len.h"
 #include "movement.h"
 #include "sound.h"
+#include "shape_create.h"
 #include <gtk-3.0/gtk/gtk.h>
 #include <gtk-3.0/gtk/gtkglarea.h>
 #include <pthread.h>
 #include <wait.h>
 #include <err.h>
 #include <errno.h>
-#include <math.h>
 #include <time.h>
 
 int state;
 int filter_n;
 gchar *soundfile;
+
+unsigned int index_points = 0;
+unsigned int index_sphere = 0;
+float points_sphere[126 * 2];
+unsigned int indexes_sphere[240];
+
 const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
 const float b = 0.850650808352039932; // ((1 + sqrt(5))/2) / sqrt(1 +(1 + sqrt(5))/2)²)
-
-float float_rand(float mini, float maxi)
-{
-    float scale = rand() / (float) RAND_MAX;
-    return mini + scale * ( maxi - mini );
-}
 
 float sst[6] = {0.0, 0.0, 0.0,0.1, 0.1, 0.1};
 
 unsigned ssts[1] = {0};
-
+;
 // One dimensional matrix array[i][j] = array[i * cols + j]
 float points[72] = {
     -a, 0.0, b, 0.5,0.02,0.48,
@@ -67,125 +67,23 @@ unsigned int indexes[60] = {
         7,11,2
 };
 
-unsigned int index_points = 0;
-unsigned int index_sphere = 0;
-float points_sphere[126 * 2];
-unsigned int indexes_sphere[240];
-
-float normalization_value(float v[3]){
-    float n = sqrtf(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-    return n;
-}
-
-/*void add_triangle(float* v1, float* v2, float* v3, float points_array[]){
-    for(int i = 0; i < 3; i++){
-        points_array[index_points + i] = v1[i];
-        points_array[index_points + i + 3] = v2[i];
-        points_array[index_points + i + 6] = v3[i];
-    }
-    index_points += 9;
-}*/
-
-void add_vertex(float v[3], float points_array[]){
-    for(int i = 0; i < 3; i++){
-        points_array[index_points + i] = v[i];
-    }
-    index_points += 3;
-    // Add color
-    for(int i = 0; i < 3; i++){
-        float x = rand() / (float) RAND_MAX;
-        points_array[index_points + i] = x;
-    }
-    index_points += 3;
-}
-
-int vertexAlreadyExist(float v[3]){
-    for(unsigned int i = 0; i < index_points / 6; i++){
-        if (v[0] == points_sphere[i * 6]){
-            if(v[1] == points_sphere[i * 6 + 1]){
-                if(v[2] == points_sphere[i * 6 + 2]){
-                    return i;
-                }
-            }
-        }
-    }
-    return -1;
-}
-
-void add_to_arrays(float v[3], float points_array[]){
-    int current_index = vertexAlreadyExist(v);
-
-    if (current_index == - 1){
-        indexes_sphere[index_sphere] = index_points/6;
-        add_vertex(v, points_array);
-    }
-    else
-        indexes_sphere[index_sphere] = current_index;
-    index_sphere++;
-}
-
-void subdivide(float* v1, float* v2, float* v3, unsigned int SubdivisionCoef, float points_array[]) {
-    float v12[3], v23[3], v31[3];
-    float n12, n23, n31;
-
-    if (SubdivisionCoef == 0){
-        add_to_arrays(v1, points_array);
-        add_to_arrays(v2, points_array);
-        add_to_arrays(v3, points_array);
-        return;
-    }
-
-    for(int i = 0; i < 3; i++){
-        v12[i] = (v1[i] + v2[i]) / 2.0;
-        v23[i] = (v2[i] + v3[i]) / 2.0;
-        v31[i] = (v3[i] + v1[i]) / 2.0;
-    }
-
-    n12 = normalization_value(v12);
-    n23 = normalization_value(v23);
-    n31 = normalization_value(v31);
-    
-    for(int j = 0; j < 3; j++){
-        v12[j] /= n12;
-        v23[j] /= n23;
-        v31[j] /= n31;
-    }
-    subdivide(v1, v12, v31, SubdivisionCoef - 1, points_array);
-    subdivide(v2, v23, v12, SubdivisionCoef - 1, points_array);
-    subdivide(v3, v31, v23, SubdivisionCoef - 1, points_array);
-    subdivide(v12, v23, v31, SubdivisionCoef - 1, points_array);
-}
-
-void create_sphere(unsigned int nb_subdivision, float sphere_points_array[], float icosahedron_points[], unsigned int icosahedron_index[]){
-    float v1[3];
-    float v2[3];
-    float v3[3];
-    for(int i = 0; i < 20; i++){
-        for(int j = 0; j < 3; j++){
-            v1[j] = icosahedron_points[icosahedron_index[i * 3]  * 6 + j];
-            v2[j] = icosahedron_points[icosahedron_index[i * 3 + 1] * 6 + j];
-            v3[j] = icosahedron_points[icosahedron_index[i * 3 + 2]  * 6 + j];
-        }
-        subdivide(v1, v2, v3, nb_subdivision, sphere_points_array);
-    }
-}
 
 static gboolean render(GtkGLArea* area) {
 
-  /* Nothing  */
+  // Nothing
   if(state == 0)
   {
     draw_triangle(sst, ssts, 6, 1);
   }
 
-  /* Icosahedron  */
+  // Icosahedron
   if(state == 1)
   {
     on_motion(points,12);
     draw_triangle(points, indexes, 72, 60);
   }
 
-  /* Icosphere */
+  // Icosphere
   if(state == 2)
   {
     on_motion(points_sphere, 42);
@@ -195,20 +93,23 @@ static gboolean render(GtkGLArea* area) {
   return TRUE;
 }
 
-
 void* worker2(void* arg){
   float* deformation_factors = arg;
-  for(int i = 0; i < 600; i++){
+  
+  for(int i = 0; i < 10; i++){
     int randomPoint = rand() % 42;
     float x = sqrtf(deformation_factors[i]);
     deformation(points_sphere, randomPoint, x);
+    
     if(randomPoint > 0 && randomPoint < 42){
       deformation(points_sphere, randomPoint + 1, x);
       deformation(points_sphere, randomPoint - 1, x);
     }
+    
     usleep(100000);
     deformation(points_sphere, randomPoint, x);
     usleep(100000);
+    
     deformation(points_sphere, randomPoint, 1/deformation_factors[i]);
     if(randomPoint > 0 && randomPoint < 42){
       deformation(points_sphere, randomPoint + 1, 1/x);
@@ -226,14 +127,22 @@ void deformation_shape(float* deformation_factors){
     errno = e;
     err(EXIT_FAILURE,"pthread create()");
   }
+
+  pthread_detach(thr);
 }
 
 void *worker(void* arg)
 {
+  float deformation_factors[10];
+  for(int i = 0; i < 10; i++){
+    deformation_factors[i] = float_rand(1.1, 1.55);
+  }
+  deformation_shape(deformation_factors);
   GtkButton * button = arg ;
   //gtk_widget_set_sensitive (GTK_WIDGET(button), FALSE);
-  if (soundfile !=NULL)
+  if (soundfile !=NULL){
     play_sound(soundfile);
+  }
   gtk_widget_set_sensitive (GTK_WIDGET(button), TRUE);
   return EXIT_SUCCESS;
 }
@@ -347,19 +256,19 @@ int main() {
   GtkFileChooser *file_chooser_button;
   GtkScale * scale_bar;
   GtkBuilder *builder;
-  GError *error;
+  //GError *error;
   gchar *filename;
 
   gtk_init(NULL, NULL);
   builder = gtk_builder_new();
   filename = g_build_filename("window.glade", NULL);
-  gtk_builder_add_from_file(builder, filename, &error);
+  gtk_builder_add_from_file(builder, filename, NULL);
   g_free(filename);
-  if (error) {
+  /*if (error) {
     g_printerr("Error loading file: %s\n", error->message);
     g_error_free(error);
     return error->code;
-  }
+  }*/
 
   main_window = GTK_WIDGET(gtk_builder_get_object(builder, "MainWindow"));
   play_button = GTK_BUTTON(gtk_builder_get_object(builder, "play_button"));
@@ -384,14 +293,9 @@ int main() {
   gtk_widget_show_all(main_window);
 
 
-  create_sphere(1, points_sphere, points, indexes);
+  create_sphere(1, points_sphere, indexes_sphere, points, indexes, &index_points, &index_sphere);
   scaling(points_sphere,42,0.6);
   scaling(points,12,0.6);
-  float deformation_factors[2000];
-  for(int i = 0; i < 600; i++){
-    deformation_factors[i] = float_rand(1.1, 1.55);
-  }
-  deformation_shape(deformation_factors);
   
   gtk_main();
 

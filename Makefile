@@ -1,5 +1,5 @@
 CPPFLAGS = -MMD `sdl2-config --cflags`
-CC = gcc -pthread
+CC = gcc -pthread -fsanitize=address
 CFLAGS = `pkg-config --cflags gtk+-3.0` -Wextra -Wall -O3 -g 
 LDFLAGS =
 LDLIBS = `pkg-config --libs gtk+-3.0` `sdl2-config --libs` -lGL -lGLEW -lSDL2_mixer  -lm
@@ -9,7 +9,7 @@ SRC := $(wildcard src/*.c)
 DEP = ${SRC:.c=.d}
 EXEC = mp
 OBJDIR = obj
-OBJ= $(addprefix $(OBJDIR)/, movement.o shape.o sound_len.o sound.o main.o)
+OBJ= $(addprefix $(OBJDIR)/, shape_create.o movement.o shape.o sound_len.o sound.o main.o)
 
 all: $(OBJDIR) $(EXEC)
 
@@ -25,6 +25,8 @@ obj/shape.o: src/shape.c
 	$(CC) $(CFLAGS) -c -o obj/shape.o src/shape.c
 obj/sound.o: src/sound.c
 	$(CC) $(CFLAGS) -c -o obj/sound.o src/sound.c
+obj/shape_create.o: src/shape_create.c
+	$(CC) $(CFLAGS) -c -o obj/shape_create.o src/shape_create.c
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
