@@ -1,4 +1,5 @@
 #include "shape.h"
+#include "sound_len.h"
 #include "movement.h"
 #include "sound.h"
 #include <gtk-3.0/gtk/gtk.h>
@@ -280,6 +281,10 @@ static gboolean filter_number(GtkComboBox* filter_box, void * arg)
     filter_n = 4;
     break;
 
+    case 5:
+    filter_n = 5;
+    break;
+
   }
   gtk_widget_set_sensitive (GTK_WIDGET(combo_box), TRUE);
   return TRUE;
@@ -291,11 +296,11 @@ static gboolean modele(GtkComboBox* combo_box,void * arg)
   switch (gtk_combo_box_get_active (combo_box))
   {
     case 0:
-    state = 1;
+    state = 0;
     break;
 
     case 1:
-    state = 0;
+    state = 1;
     break;
 
     case 2:
