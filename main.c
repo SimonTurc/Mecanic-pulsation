@@ -229,31 +229,36 @@ void deformation_shape(float* deformation_factors){
 
 void * worker(void* arg)
 {
-  GtkFileChooser * file_chooser = arg ;
+  GtkButton * button = arg ;
+  gtk_widget_set_sensitive (GTK_WIDGET(button), FALSE);
   if (soundfile !=NULL)
     play_sound(soundfile);
-  gtk_widget_set_sensitive (GTK_WIDGET(file_chooser), TRUE);
+  gtk_widget_set_sensitive (GTK_WIDGET(button), TRUE);
   return EXIT_SUCCESS;
 }
 
-static gboolean sound_player(GtkFileChooser* file_chooser)
+static gboolean sound_player(GtkFileChooser* file_chooser, void* arg)
 {
-  pthread_t thr;
-  gtk_widget_set_sensitive (GTK_WIDGET(file_chooser), FALSE);
+  //pthread_t thr;
+  GtkComboBox *combo_filter = arg ;
+  //gtk_widget_set_sensitive (GTK_WIDGET(file_chooser), FALSE);
   soundfile = gtk_file_chooser_get_filename(file_chooser);
+  gtk_widget_set_sensitive (GTK_WIDGET(combo_filter), TRUE);
   g_print("%s\n",soundfile);
+  /*
   int e = pthread_create(&thr,NULL,worker,(void*)file_chooser);
   if(e != 0)
   {
     errno = e;
     err(EXIT_FAILURE,"pthread create()");
-  }
+  }*/
   return TRUE;
 }
 
-static gboolean filter_number(GtkComboBox* combo_box)
+static gboolean filter_number(GtkComboBox* filter_box, void * arg)
 {
-  switch (gtk_combo_box_get_active (combo_box))
+  GtkComboBox *combo_box = arg ;
+  switch (gtk_combo_box_get_active (filter_box))
   {
     case 0:
     filter_n = 0;
@@ -276,11 +281,13 @@ static gboolean filter_number(GtkComboBox* combo_box)
     break;
 
   }
+  gtk_widget_set_sensitive (GTK_WIDGET(combo_box), TRUE);
   return TRUE;
 }
 
-static gboolean modele(GtkComboBox* combo_box)
+static gboolean modele(GtkComboBox* combo_box,void * arg)
 {
+  GtkButton* play_button = arg ;
   switch (gtk_combo_box_get_active (combo_box))
   {
     case 0:
@@ -296,12 +303,20 @@ static gboolean modele(GtkComboBox* combo_box)
     break;
 
   }
+  gtk_widget_set_sensitive (GTK_WIDGET(play_button), TRUE);
   return TRUE;
 }
 
-void play_function() 
+static gboolean play_function(GtkButton *play_button) 
 { 
-  g_print("Pass\n");
+  pthread_t thr;
+  int e = pthread_create(&thr,NULL,worker,(void*)play_button);
+  if(e != 0)
+  {
+    errno = e;
+    err(EXIT_FAILURE,"pthread create()");
+  }
+  return TRUE;
 }
 
 int main() {
@@ -336,13 +351,13 @@ int main() {
   g_signal_connect(G_OBJECT(main_window), "destroy", (GCallback)gtk_main_quit,
                    NULL);
   g_signal_connect(G_OBJECT(combo_box), "changed",
-                   G_CALLBACK(modele), &state);
+                   G_CALLBACK(modele), (void *)play_button);
   g_signal_connect(G_OBJECT(combo_filter), "changed",
-                   G_CALLBACK(filter_number), &filter_n);   //filter_n is for the filter to choose
+                   G_CALLBACK(filter_number), (void *)combo_box);
   g_signal_connect(G_OBJECT(play_button), "clicked",
                    G_CALLBACK(play_function), NULL);
   g_signal_connect(G_OBJECT(file_chooser_button), "selection-changed",
-                   G_CALLBACK(sound_player), NULL);
+                   G_CALLBACK(sound_player), (void *)combo_filter);
   g_signal_connect(G_OBJECT(gl_area), "render", G_CALLBACK(render), NULL);
   
   gtk_widget_show_all(main_window);

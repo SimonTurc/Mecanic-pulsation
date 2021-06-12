@@ -51,6 +51,7 @@
         <child>
           <object class="GtkComboBoxText" id="combo_filter">
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can-focus">False</property>
             <property name="margin-end">4</property>
             <property name="active">0</property>
@@ -70,6 +71,7 @@
         <child>
           <object class="GtkFileChooserButton" id="file_chooser">
             <property name="visible">True</property>
+            <property name="sensitive">True</property>
             <property name="can-focus">False</property>
             <property name="margin-end">4</property>
             <property name="title" translatable="yes">Fichier son (.wav,.mp3 ...)</property>
@@ -96,7 +98,7 @@
         <child>
           <object class="GtkComboBoxText" id="combo_box">
             <property name="visible">True</property>
-            <property name="sensitive">True</property>
+            <property name="sensitive">False</property>
             <property name="can-focus">False</property>
             <property name="margin-end">4</property>
             <property name="active">1</property>
