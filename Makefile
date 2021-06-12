@@ -8,23 +8,26 @@ vpath %.c
 SRC := $(wildcard src/*.c)
 DEP = ${SRC:.c=.d}
 EXEC = mp
-OBJDIR = dist
+OBJDIR = obj
 OBJ= $(addprefix $(OBJDIR)/, movement.o shape.o sound_len.o sound.o main.o)
 
-all: $(EXEC)
+all: $(OBJDIR) $(EXEC)
 
 $(EXEC) : ${OBJ}
 	$(CC) $(CFLAGS) -o $(EXEC) ${OBJ} $(LDLIBS)
-dist/movement.o: src/movement.c
-	$(CC) $(CFLAGS) -c -o dist/movement.o src/movement.c
-dist/main.o: src/main.c
-	$(CC) $(CFLAGS) -c -o dist/main.o src/main.c
-dist/sound_len.o: src/sound_len.c
-	$(CC) $(CFLAGS) -c -o dist/sound_len.o src/sound_len.c
-dist/shape.o: src/shape.c
-	$(CC) $(CFLAGS) -c -o dist/shape.o src/shape.c
-dist/sound.o: src/sound.c
-	$(CC) $(CFLAGS) -c -o dist/sound.o src/sound.c
+obj/movement.o: src/movement.c
+	$(CC) $(CFLAGS) -c -o obj/movement.o src/movement.c
+obj/main.o: src/main.c
+	$(CC) $(CFLAGS) -c -o obj/main.o src/main.c
+obj/sound_len.o: src/sound_len.c
+	$(CC) $(CFLAGS) -c -o obj/sound_len.o src/sound_len.c
+obj/shape.o: src/shape.c
+	$(CC) $(CFLAGS) -c -o obj/shape.o src/shape.c
+obj/sound.o: src/sound.c
+	$(CC) $(CFLAGS) -c -o obj/sound.o src/sound.c
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 -include ${DEP}
 
@@ -32,4 +35,4 @@ dist/sound.o: src/sound.c
 .PHONY: clean
 
 clean:
-	rm -f dist/*.o src/*.d mp
+	rm -rf obj src/*.d mp
