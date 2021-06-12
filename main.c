@@ -231,19 +231,12 @@ void deformation_shape(float* deformation_factors){
 void * worker(void* arg)
 {
   GtkButton * button = arg ;
-  gtk_widget_set_sensitive (GTK_WIDGET(button), FALSE);
+  //gtk_widget_set_sensitive (GTK_WIDGET(button), FALSE);
   if (soundfile !=NULL)
     play_sound(soundfile);
   gtk_widget_set_sensitive (GTK_WIDGET(button), TRUE);
   return EXIT_SUCCESS;
 }
-
-/*void * worker_s(void* arg)
-{
-  GtkRange*  scale = arg ;
-  gtk_range_set_value(scale,1);
-  return EXIT_SUCCESS;
-}*/
 
 static gboolean sound_player(GtkFileChooser* file_chooser, void* arg)
 {
@@ -314,19 +307,12 @@ static gboolean modele(GtkComboBox* combo_box,void * arg)
 static gboolean play_function(GtkButton *play_button) 
 { 
   pthread_t thr;
-  //pthread_t thr2;
   int e = pthread_create(&thr,NULL,worker,(void*)play_button);
   if(e != 0)
   {
     errno = e;
     err(EXIT_FAILURE,"pthread create()");
   }
-  /*int e2 = pthread_create(&thr2,NULL,worker_s, arg);
-  if(e2 != 0)
-  {
-    errno = e2;
-    err(EXIT_FAILURE,"pthread create()");
-  }*/
   return TRUE;
 }
 
