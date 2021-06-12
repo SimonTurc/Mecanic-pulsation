@@ -158,9 +158,6 @@ void play_sound(char *file) {
 
   //Creating few arrays that will be used to create a smooth spike 
   int fullpulsation[intsize];//Principal pulsation
-  //int semipulsation[intsize];//Semi pulsation
-  //int thirthpulsation[intsize];//Thirth pulsation 
-  //int quarterpulsation[intsize];//Quarter pulsation
 
   //printf("Before %i -> %i \n", sound->abuf[50000], sound->abuf[50001]); 
   //LowPassFilter(sound->abuf, sound->alen);// We apply the filter to the array of samples.
@@ -179,20 +176,17 @@ void play_sound(char *file) {
   //Furthermore to get a nice curve, we can take the same array but each value will get divided by 2 and 3 and 4 maybe
   for(int i=0; i < intsize; i++)
     {
-      fullpulsation[i] = SamplesSum(i*441, (i+1)*441, sound->abuf)/nbsamples;
-      //semipulsation[i] = fullpulsation[i]/2;
-      //thirthpulsation[i] = fullpulsation[i]/3;
-      //quarterpulsation[i] = fullpulsation[i]/4;
-      }
+      fullpulsation[i] = SamplesSum(i*441, (i+1)*441, sound->abuf)/nbsamples;  
+    }
   
   int median[intsize];
   for(int i = 0; i < intsize; i++)
     median[i] = fullpulsation[i];
   quickSort(median, 0, intsize-1);
-  //for(int i = 0; i < intsize; i++)
-  //{
-  //  printf("Index: %i, Value: %i \n", i, median[i]);
-  //}
+  for(int i = 0; i < intsize; i++)
+  {
+   printf("Index: %i, Value: %i \n", i, median[i]);
+  }
   int median_value = median[intsize/2];
   printf("%i \n", median_value);
   float ecart_type_value = ecart_type(median, intsize);
@@ -218,10 +212,10 @@ void play_sound(char *file) {
   SDL_Quit();
 }
 
-/*int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
   if (argc != 2)
     errx(EXIT_FAILURE, "./sound [path]");
 
   play_sound(argv[1]);
   return EXIT_SUCCESS;
-  }*/
+  }
