@@ -228,13 +228,29 @@ void deformation_shape(float* deformation_factors){
   }
 }
 
-void * worker(void* arg)
+void *worker(void* arg)
 {
   GtkButton * button = arg ;
   //gtk_widget_set_sensitive (GTK_WIDGET(button), FALSE);
   if (soundfile !=NULL)
     play_sound(soundfile);
   gtk_widget_set_sensitive (GTK_WIDGET(button), TRUE);
+  return EXIT_SUCCESS;
+}
+
+void * worker_s(void* arg)
+{
+  GtkRange*  scale = arg ;
+  float len ;
+  if (soundfile !=NULL)
+    get_sound_len(soundfile, &len);
+  
+  for (double i = 0; i <= 100; i += 100.0f/len)
+  {
+    gtk_range_set_value(scale,i);
+    sleep(1);
+  }
+  gtk_range_set_value(scale,0);
   return EXIT_SUCCESS;
 }
 
@@ -304,13 +320,19 @@ static gboolean modele(GtkComboBox* combo_box,void * arg)
   return TRUE;
 }
 
-static gboolean play_function(GtkButton *play_button) 
+static gboolean play_function(GtkButton *play_button, void * arg) 
 { 
-  pthread_t thr;
+  pthread_t thr ,thr2;
   int e = pthread_create(&thr,NULL,worker,(void*)play_button);
   if(e != 0)
   {
     errno = e;
+    err(EXIT_FAILURE,"pthread create()");
+  }
+  int e2 = pthread_create(&thr2,NULL,worker_s,arg);
+  if(e2 != 0)
+  {
+    errno = e2;
     err(EXIT_FAILURE,"pthread create()");
   }
   return TRUE;
@@ -323,7 +345,7 @@ int main() {
   GtkComboBox *combo_filter;
   GtkButton *play_button;
   GtkFileChooser *file_chooser_button;
-  //GtkScale * scale_bar;
+  GtkScale * scale_bar;
   GtkBuilder *builder;
   GError *error;
   gchar *filename;
@@ -345,7 +367,7 @@ int main() {
   gl_area = GTK_WIDGET(gtk_builder_get_object(builder, "OGLarea"));
   combo_box = GTK_COMBO_BOX(gtk_builder_get_object(builder, "combo_box"));
   combo_filter = GTK_COMBO_BOX(gtk_builder_get_object(builder, "combo_filter"));
-  //scale_bar = GTK_SCALE(gtk_builder_get_object(builder, "scale_bar"));
+  scale_bar = GTK_SCALE(gtk_builder_get_object(builder, "scale_bar"));
 
   g_signal_connect(G_OBJECT(main_window), "destroy", (GCallback)gtk_main_quit,
                    NULL);
@@ -354,7 +376,7 @@ int main() {
   g_signal_connect(G_OBJECT(combo_filter), "changed",
                    G_CALLBACK(filter_number), (void *)combo_box);
   g_signal_connect(G_OBJECT(play_button), "clicked",
-                   G_CALLBACK(play_function), NULL);
+                   G_CALLBACK(play_function), (void *) scale_bar);
   g_signal_connect(G_OBJECT(file_chooser_button), "selection-changed",
                    G_CALLBACK(sound_player), (void *)combo_filter);
   g_signal_connect(G_OBJECT(gl_area), "render", G_CALLBACK(render), NULL);

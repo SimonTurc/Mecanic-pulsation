@@ -4,9 +4,9 @@
 
 void get_sound_len(char *file, float *ptr) {
 
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+  /*if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
-  }
+  }*/
 
   if (Mix_OpenAudio(44100, AUDIO_S8, 1, 1024) <
       0) {
@@ -14,8 +14,8 @@ void get_sound_len(char *file, float *ptr) {
     errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
   }
 
-  Mix_AllocateChannels(1);
-  Mix_Volume(0, MIX_MAX_VOLUME);
+  /*Mix_AllocateChannels(1);
+  Mix_Volume(0, MIX_MAX_VOLUME);*/
 
   Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1);
   if (sound == NULL) {
@@ -23,11 +23,11 @@ void get_sound_len(char *file, float *ptr) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
-  if (Mix_PlayChannel(0, sound, 0) == -1) {
+  /*if (Mix_PlayChannel(0, sound, 0) == -1) {
     Mix_CloseAudio();
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to play on the channel 0 : %s", Mix_GetError());
-  }
+  }*/
 
   *ptr = sound->alen/(44100.0);// Durée de l'audio
 
