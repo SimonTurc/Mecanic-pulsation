@@ -36,7 +36,7 @@ void get_sound_len(char *file, float *ptr) {
   SDL_Quit();
 
 }
-
+/*
 int main(int argc, char *argv[]) {
   if (argc != 2)
     errx(EXIT_FAILURE, "./sound [path]");
@@ -46,3 +46,4 @@ int main(int argc, char *argv[]) {
   printf("Audio_time: %f\n", *ptr);
   return *ptr;
   }
+*/

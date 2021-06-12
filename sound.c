@@ -211,7 +211,7 @@ void play_sound(char *file) {
   Mix_CloseAudio();
   SDL_Quit();
 }
-
+/*
 int main(int argc, char *argv[]) {
   if (argc != 2)
     errx(EXIT_FAILURE, "./sound [path]");
@@ -219,3 +219,4 @@ int main(int argc, char *argv[]) {
   play_sound(argv[1]);
   return EXIT_SUCCESS;
   }
+*/

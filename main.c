@@ -11,6 +11,7 @@
 #include <time.h>
 
 int state;
+int filter_n;
 gchar *soundfile;
 const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
 const float b = 0.850650808352039932; // ((1 + sqrt(5))/2) / sqrt(1 +(1 + sqrt(5))/2)²)
@@ -250,6 +251,34 @@ static gboolean sound_player(GtkFileChooser* file_chooser)
   return TRUE;
 }
 
+static gboolean filter_number(GtkComboBox* combo_box)
+{
+  switch (gtk_combo_box_get_active (combo_box))
+  {
+    case 0:
+    filter_n = 0;
+    break;
+
+    case 1:
+    filter_n = 1;
+    break;
+
+    case 2:
+    filter_n = 2;
+    break;
+
+    case 3:
+    filter_n = 3;
+    break;
+
+    case 4:
+    filter_n = 4;
+    break;
+
+  }
+  return TRUE;
+}
+
 static gboolean modele(GtkComboBox* combo_box)
 {
   switch (gtk_combo_box_get_active (combo_box))
@@ -270,7 +299,7 @@ static gboolean modele(GtkComboBox* combo_box)
   return TRUE;
 }
 
-void function_test() 
+void play_function() 
 { 
   g_print("Pass\n");
 }
@@ -279,9 +308,8 @@ int main() {
   GtkWidget *main_window;
   GtkWidget *gl_area;
   GtkComboBox *combo_box;
-  GtkButton *button_filter1;
-  GtkButton *button_filter2;
-  GtkButton *button_filter3;
+  GtkComboBox *combo_filter;
+  GtkButton *play_button;
   GtkFileChooser *file_chooser_button;
   GtkBuilder *builder;
   GError *error;
@@ -299,23 +327,20 @@ int main() {
   }
 
   main_window = GTK_WIDGET(gtk_builder_get_object(builder, "MainWindow"));
-  button_filter1 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_1"));
-  button_filter2 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_2"));
-  button_filter3 = GTK_BUTTON(gtk_builder_get_object(builder, "filter_3"));
+  play_button = GTK_BUTTON(gtk_builder_get_object(builder, "play_button"));
   file_chooser_button = GTK_FILE_CHOOSER(gtk_builder_get_object(builder, "file_chooser"));
   gl_area = GTK_WIDGET(gtk_builder_get_object(builder, "OGLarea"));
   combo_box = GTK_COMBO_BOX(gtk_builder_get_object(builder, "combo_box"));
+  combo_filter = GTK_COMBO_BOX(gtk_builder_get_object(builder, "combo_filter"));
 
   g_signal_connect(G_OBJECT(main_window), "destroy", (GCallback)gtk_main_quit,
                    NULL);
   g_signal_connect(G_OBJECT(combo_box), "changed",
                    G_CALLBACK(modele), &state);
-  g_signal_connect(G_OBJECT(button_filter1), "clicked",
-                   G_CALLBACK(function_test), NULL);
-  g_signal_connect(G_OBJECT(button_filter2), "clicked",
-                   G_CALLBACK(function_test), NULL);
-  g_signal_connect(G_OBJECT(button_filter3), "clicked",
-                   G_CALLBACK(function_test), NULL);
+  g_signal_connect(G_OBJECT(combo_filter), "changed",
+                   G_CALLBACK(filter_number), &filter_n);   //filter_n is for the filter to choose
+  g_signal_connect(G_OBJECT(play_button), "clicked",
+                   G_CALLBACK(play_function), NULL);
   g_signal_connect(G_OBJECT(file_chooser_button), "selection-changed",
                    G_CALLBACK(sound_player), NULL);
   g_signal_connect(G_OBJECT(gl_area), "render", G_CALLBACK(render), NULL);
