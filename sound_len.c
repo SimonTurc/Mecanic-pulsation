@@ -2,7 +2,7 @@
 #include <math.h>
 #include "sound_len.h"
 
-void play_sound(char *file, float *ptr) {
+void get_sound_len(char *file, float *ptr) {
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     errx(EXIT_FAILURE, "./sound [path]");
   float x;
   float *ptr = &x;
-  play_sound(argv[1], ptr);
+  get_sound_len(argv[1], ptr);
   printf("Audio_time: %f\n", *ptr);
   return *ptr;
   }

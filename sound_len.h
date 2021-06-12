@@ -3,6 +3,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
-void play_sound(char *file, float *ptr);
+void get_sound_len(char *file, float *ptr);
 
 #endif //MECHANIC_PULSATION_SOUND_LEN_H
