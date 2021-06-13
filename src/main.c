@@ -3,6 +3,7 @@
 #include "movement.h"
 #include "sound.h"
 #include "shape_create.h"
+#include "distortion.h"
 #include <gtk-3.0/gtk/gtk.h>
 #include <gtk-3.0/gtk/gtkglarea.h>
 #include <pthread.h>
@@ -20,13 +21,11 @@ unsigned int index_sphere = 0;
 float points_sphere[252];
 unsigned int indexes_sphere[240];
 
-const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
-const float b = 0.850650808352039932; // ((1 + sqrt(5))/2) / sqrt(1 +(1 + sqrt(5))/2)²)
-
 float sst[6] = {0.0, 0.0, 0.0,0.1, 0.1, 0.1};
 
 unsigned ssts[1] = {0};
 ;
+
 // One dimensional matrix array[i][j] = array[i * cols + j]
 float points[72] = {
     -a, 0.0, b, 0.5,0.02,0.48,
@@ -67,7 +66,6 @@ unsigned int indexes[60] = {
         7,11,2
 };
 
-
 static gboolean render(GtkGLArea* area) {
 
   // Nothing
@@ -91,29 +89,6 @@ static gboolean render(GtkGLArea* area) {
   }
   gtk_gl_area_queue_render(area);
   return TRUE;
-}
-
-void distortion_shape(float deformation_factors[],unsigned int deformation_length, float points_array[], unsigned int nb_points){
-   for(unsigned int i = 0; i < deformation_length; i++){
-     unsigned int randomPoint = rand() % (nb_points - 1);
-     float x = sqrtf(deformation_factors[i]);
-     deformation(points_array, randomPoint, x);
-     
-     if(randomPoint > 0 && randomPoint < nb_points){
-       deformation(points_array, randomPoint + 1, x);
-       deformation(points_array, randomPoint - 1, x);
-     }
-    
-     usleep(100000);
-     deformation(points_array, randomPoint, x);
-     usleep(100000);
-     
-     deformation(points_array, randomPoint, 1/deformation_factors[i]);
-     if(randomPoint > 0 && randomPoint < nb_points){
-       deformation(points_array, randomPoint + 1, 1/x);
-       deformation(points_array, randomPoint - 1, 1/x);
-     }
-   }
 }
 
 void* worker2(void* arg){

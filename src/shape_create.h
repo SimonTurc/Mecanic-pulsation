@@ -1,11 +1,5 @@
-#ifndef MECHANIC_PULSATION_SHAPE_CREAPE_H
-#define MECHANIC_PULSATION_SHAPE_CREAPE_H
-
-struct Icosahedron{
-  float points[72];
-  unsigned int indexes[60];
-  
-}Icosahedron;
+#ifndef MECHANIC_PULSATION_SHAPE_CREATE_H
+#define MECHANIC_PULSATION_SHAPE_CREATE_H
 
 float float_rand(float mini, float maxi);
 float normalization_value(float v[3]);

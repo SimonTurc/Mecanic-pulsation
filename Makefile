@@ -9,7 +9,7 @@ SRC := $(wildcard src/*.c)
 DEP = ${SRC:.c=.d}
 EXEC = mp
 OBJDIR = obj
-OBJ= $(addprefix $(OBJDIR)/, shape_create.o movement.o shape.o sound_len.o sound.o main.o)
+OBJ= $(addprefix $(OBJDIR)/, distortion.o shape_create.o movement.o shape.o sound_len.o sound.o main.o)
 
 all: $(OBJDIR) $(EXEC)
 
@@ -27,6 +27,8 @@ obj/sound.o: src/sound.c
 	$(CC) $(CFLAGS) -c -o obj/sound.o src/sound.c
 obj/shape_create.o: src/shape_create.c
 	$(CC) $(CFLAGS) -c -o obj/shape_create.o src/shape_create.c
+obj/distortion.o: src/distortion.c
+	$(CC) $(CFLAGS) -c -o obj/distortion.o src/distortion.c
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
