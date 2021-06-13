@@ -15,6 +15,7 @@
 int state ;
 int filter_n;
 gchar *soundfile;
+float len;
 struct button_state
   {
     GtkFileChooser *file_chooser_button;
@@ -101,8 +102,9 @@ static gboolean render(GtkGLArea* area) {
 }
 
 void* worker2(void* arg){
+  int ilen = (int)(len*5);
   float* deformation_factors = arg;
-  distortion_shape(deformation_factors, 50, points_sphere, 162);
+  distortion_shape(deformation_factors, ilen, points_sphere, 162);
   //distortion_shape(deformation_factors, 10, points, 12);
   return EXIT_SUCCESS;
 }
@@ -121,10 +123,9 @@ void deformation_shape(float* deformation_factors){
 
 void *worker(void* arg)
 {
-  float deformation_factors[50];
-  for(int i = 0; i < 50; i++){
-    deformation_factors[i] = float_rand(1.1, 1.55);
-  }
+  int ilen = (int)(len*5);
+  float deformation_factors[ilen];
+  pulsation_array(soundfile, deformation_factors, ilen);
   deformation_shape(deformation_factors);
   struct button_state* menu = arg ;
   if (soundfile !=NULL){
@@ -138,9 +139,6 @@ void *worker(void* arg)
 void * worker_s(void* arg)
 {
   GtkRange*  scale = arg ;
-  float len ;
-  if (soundfile !=NULL)
-    get_sound_len(soundfile, &len);
   
   for (double i = 0; i <= 100; i += 100.0f/len)
   {
@@ -157,6 +155,8 @@ static gboolean sound_player(GtkFileChooser* file_chooser, void* arg)
   soundfile = gtk_file_chooser_get_filename(file_chooser);
   gtk_widget_set_sensitive (GTK_WIDGET(combo_filter), TRUE);
   g_print("%s\n",soundfile);
+  if (soundfile !=NULL)
+    get_sound_len(soundfile, &len);
 
   return TRUE;
 }

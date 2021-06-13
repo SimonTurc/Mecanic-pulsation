@@ -116,11 +116,69 @@ void LowPassFilter(Uint8 *buffer, int length){// Just apply the filter
   LowPassEdit(buffer, length, fBeta);
   }*/
 
+float build_ETV_value(int intsize, float *fullpulsation)
+{
+  int median[intsize];
+  for(int i = 0; i < intsize; i++)
+    median[i] = fullpulsation[i];
+  quickSort(median, 0, intsize-1);
+  int median_value = median[intsize/2];
+  printf("Median value : %i \n", median_value);
+  float ecart_type_value = ecart_type(median, intsize);
+  return ecart_type_value;
+}
+
+
+void pulsation_array(char *filename,float *fullpulsation, int intsize)
+{
+   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
+  }
+
+  if (Mix_OpenAudio(44100, AUDIO_S8, 1, 1024) <
+      0) {
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
+  }
+
+  Mix_AllocateChannels(1);
+  Mix_Volume(0, MIX_MAX_VOLUME);
+
+  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile(filename, "rb"), 1);
+  if (sound == NULL) {
+    Mix_CloseAudio();
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
+  }
+  int nbsamples = 8820;
+  //float size = sound_time * 5;
+  //Creating few arrays that will be used to create a smooth spike 
+  //Now we have to fill the array with the sum of each 441 samples.
+  //Lastly print the array
+  for(int i=0; i < intsize; i++)
+    {
+      fullpulsation[i] = SamplesSum(i*nbsamples, (i+1)*nbsamples, sound->abuf)/nbsamples;
+      printf("IndexZ: %i, Value: %f\n", i, fullpulsation[i]);
+    }
+  float ETV = build_ETV_value(intsize, fullpulsation);
+  printf("ETV: %f\nETV/255: %f\n", ETV, ETV/255);
+  float coef = 0.756;//0378/0.5
+  printf("Coef: %f\n", coef);
+  for(int i=0; i < intsize; i++)
+   {
+     fullpulsation[i] = 1.1+((((ETV/255)*fullpulsation[i])/100)*coef);
+   }
+
+  Mix_FreeChunk(sound);
+  Mix_CloseAudio();
+  SDL_Quit();
+  
+}
 void play_sound(char *file) {
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
-  }
+    }
 
   if (Mix_OpenAudio(44100, AUDIO_S8, 1, 268435456) < 0) {
     SDL_Quit();
@@ -131,63 +189,19 @@ void play_sound(char *file) {
   Mix_Volume(0, MIX_MAX_VOLUME);
 
   Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile(file, "rb"), 1);
+
   if (sound == NULL) {
     Mix_CloseAudio();
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
+
   if (Mix_PlayChannel(0, sound, 0) == -1) {
     Mix_CloseAudio();
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to play on the channel 0 : %s", Mix_GetError());
   }
-  int nbsamples = 441;//nombre de samples par index du tableau (44100/100ms)
-
-  printf("%i\n", sound->alen);
-  float sound_time = sound->alen/(44100.0);// Durée de l'audio
  
-  //If I have 44100 samples per sec, and I want 100 values for 1 sec
-  //It means that there are 441samples per value
-  //We can expect 630 values for piano2.wav
-  
-  float size = sound_time * 100;//Basically this is the number of int that wwe will get through the array
-  int intsize = (int) size;//Convert the float size to a int to create array 
-
-  //Creating few arrays that will be used to create a smooth spike 
-  int fullpulsation[intsize];//Principal pulsation
-
-  //printf("Before %i -> %i \n", sound->abuf[50000], sound->abuf[50001]); 
-  //LowPassFilter(sound->abuf, sound->alen);// We apply the filter to the array of samples.
-  //printf("Before %i -> %i \n", sound->abuf[50000], sound->abuf[50001]);
-  /*for (Uint32 i = 0; i < sound->alen;++i) {
-    if(i > 100000 && i < 100300)
-      printf("LowPassFilter: %i ; Samples: %i\n", i, sound->abuf[i]);
-  }
-  printf("%i\n", sound->alen);*/
-  //Now we have to fill the array with the sum of each 441 samples.
-  printf("Audio time: %f \nSize: %f \nReal_size: %i\n", sound_time, size, intsize);
-  //First a loop starting at 0 to intsize
-  //Then call a function that will sum 441 samples from n*441 to n+1*441
-  //Obviously, there will be few loses of data approximatly < 0.01
-  //Lastly print the array
-  //Furthermore to get a nice curve, we can take the same array but each value will get divided by 2 and 3 and 4 maybe
-  for(int i=0; i < intsize; i++)
-    {
-      fullpulsation[i] = SamplesSum(i*441, (i+1)*441, sound->abuf)/nbsamples;  
-    }
-  
-  int median[intsize];
-  for(int i = 0; i < intsize; i++)
-    median[i] = fullpulsation[i];
-  quickSort(median, 0, intsize-1);
-  for(int i = 0; i < intsize; i++)
-  {
-   printf("Index: %i, Value: %i \n", i, median[i]);
-  }
-  int median_value = median[intsize/2];
-  printf("%i \n", median_value);
-  float ecart_type_value = ecart_type(median, intsize);
-  printf("ETV: %f \n", ecart_type_value);
   /*FILE *fptr;
   fptr = fopen("value.txt","w");
   fprintf(fptr,"[");
@@ -202,7 +216,7 @@ void play_sound(char *file) {
 
   while (Mix_Playing(0)) {
   }
-
+  
   Mix_FreeChunk(sound);
   Mix_CloseAudio();
   SDL_Quit();

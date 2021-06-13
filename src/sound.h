@@ -22,6 +22,10 @@ void LowPassEdit(Uint8 *buffer, int length, float fBeta);//Edit the buffer of sa
 
 void LowPassFilter(Uint8 *buffer, int length);
 
+float build_ETV_value(int intsize, float *fullpulsation);
+
+void pulsation_array(char *filename,float *fullpulsation, int intsize);
+
 void play_sound(char *file);
 
 #endif //MECHANIC_PULSATION_SOUND_H
