@@ -17,7 +17,7 @@ gchar *soundfile;
 
 unsigned int index_points = 0;
 unsigned int index_sphere = 0;
-float points_sphere[126 * 2];
+float points_sphere[252];
 unsigned int indexes_sphere[240];
 
 const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
@@ -93,29 +93,33 @@ static gboolean render(GtkGLArea* area) {
   return TRUE;
 }
 
+void distortion_shape(float deformation_factors[],unsigned int deformation_length, float points_array[], unsigned int nb_points){
+   for(unsigned int i = 0; i < deformation_length; i++){
+     unsigned int randomPoint = rand() % (nb_points - 1);
+     float x = sqrtf(deformation_factors[i]);
+     deformation(points_array, randomPoint, x);
+     
+     if(randomPoint > 0 && randomPoint < nb_points){
+       deformation(points_array, randomPoint + 1, x);
+       deformation(points_array, randomPoint - 1, x);
+     }
+    
+     usleep(100000);
+     deformation(points_array, randomPoint, x);
+     usleep(100000);
+     
+     deformation(points_array, randomPoint, 1/deformation_factors[i]);
+     if(randomPoint > 0 && randomPoint < nb_points){
+       deformation(points_array, randomPoint + 1, 1/x);
+       deformation(points_array, randomPoint - 1, 1/x);
+     }
+   }
+}
+
 void* worker2(void* arg){
   float* deformation_factors = arg;
-  
-  for(int i = 0; i < 10; i++){
-    int randomPoint = rand() % 42;
-    float x = sqrtf(deformation_factors[i]);
-    deformation(points_sphere, randomPoint, x);
-    
-    if(randomPoint > 0 && randomPoint < 42){
-      deformation(points_sphere, randomPoint + 1, x);
-      deformation(points_sphere, randomPoint - 1, x);
-    }
-    
-    usleep(100000);
-    deformation(points_sphere, randomPoint, x);
-    usleep(100000);
-    
-    deformation(points_sphere, randomPoint, 1/deformation_factors[i]);
-    if(randomPoint > 0 && randomPoint < 42){
-      deformation(points_sphere, randomPoint + 1, 1/x);
-      deformation(points_sphere, randomPoint - 1, 1/x);
-    }
-  }
+  distortion_shape(deformation_factors, 10, points_sphere, 42);
+  distortion_shape(deformation_factors, 10, points, 12);
   return EXIT_SUCCESS;
 }
 
@@ -294,6 +298,7 @@ int main() {
 
 
   create_sphere(1, points_sphere, indexes_sphere, points, indexes, &index_points, &index_sphere);
+  g_print("%u\n", index_points);
   scaling(points_sphere,42,0.6);
   scaling(points,12,0.6);
   
