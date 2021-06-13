@@ -1,6 +1,9 @@
 #ifndef MECHANIC_PULSATION_SHAPE_CREATE_H
 #define MECHANIC_PULSATION_SHAPE_CREATE_H
 
+const float a = 0.525731112119133606; // (1 / sqrt(1 +(1 + sqrt(5))/2)²)
+const float b = 0.850650808352039932; // ((1 + sqrt(5))/2) / sqrt(1 +(1 + sqrt(5))/2)²)
+
 float float_rand(float mini, float maxi);
 float normalization_value(float v[3]);
 void add_vertex(float v[3], float points_array[], unsigned int *ip);
