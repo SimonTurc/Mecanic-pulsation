@@ -273,7 +273,6 @@ int main() {
 
 
   create_sphere(1, points_sphere, indexes_sphere, points, indexes, &index_points, &index_sphere);
-  g_print("%u\n", index_points);
   scaling(points_sphere,42,0.6);
   scaling(points,12,0.6);
   
