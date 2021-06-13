@@ -15,6 +15,14 @@
 int state;
 int filter_n;
 gchar *soundfile;
+struct button_state
+  {
+    GtkFileChooser *file_chooser_button;
+    GtkComboBox *combo_box;
+    GtkComboBox *combo_filter;
+    GtkScale * scale_bar;
+    GtkButton *play_button;
+  };
 
 unsigned int index_points = 0;
 unsigned int index_sphere = 0;
@@ -117,12 +125,12 @@ void *worker(void* arg)
     deformation_factors[i] = float_rand(1.1, 1.55);
   }
   deformation_shape(deformation_factors);
-  GtkButton * button = arg ;
-  //gtk_widget_set_sensitive (GTK_WIDGET(button), FALSE);
+  struct button_state* menu = arg ;
   if (soundfile !=NULL){
     play_sound(soundfile);
   }
-  gtk_widget_set_sensitive (GTK_WIDGET(button), TRUE);
+  gtk_widget_set_sensitive (GTK_WIDGET(menu->play_button), TRUE);
+  gtk_widget_set_sensitive (GTK_WIDGET(menu->file_chooser_button), TRUE);
   return EXIT_SUCCESS;
 }
 
@@ -208,21 +216,30 @@ static gboolean modele(GtkComboBox* combo_box,void * arg)
   return TRUE;
 }
 
-static gboolean play_function(GtkButton *play_button, void * arg) 
+static gboolean play_function(GtkButton *play_button, gpointer arg) 
 { 
   pthread_t thr ,thr2;
-  int e = pthread_create(&thr,NULL,worker,(void*)play_button);
+  struct button_state *menu = arg;
+
+  int e = pthread_create(&thr,NULL,worker,(void*)menu);
   if(e != 0)
   {
     errno = e;
     err(EXIT_FAILURE,"pthread create()");
   }
-  int e2 = pthread_create(&thr2,NULL,worker_s,arg);
+  int e2 = pthread_create(&thr2,NULL,worker_s,menu->scale_bar);
   if(e2 != 0)
   {
     errno = e2;
     err(EXIT_FAILURE,"pthread create()");
   }
+
+  pthread_detach(thr);
+  pthread_detach(thr2);
+  gtk_widget_set_sensitive (GTK_WIDGET(play_button), FALSE);
+  gtk_widget_set_sensitive (GTK_WIDGET(menu->combo_filter), FALSE);
+  gtk_widget_set_sensitive (GTK_WIDGET(menu->combo_box), FALSE);
+  gtk_widget_set_sensitive (GTK_WIDGET(menu->file_chooser_button), FALSE);
   return TRUE;
 }
 
@@ -237,7 +254,7 @@ int main() {
   GtkBuilder *builder;
   //GError *error;
   gchar *filename;
-
+  
   gtk_init(NULL, NULL);
   builder = gtk_builder_new();
   filename = g_build_filename("window.glade", NULL);
@@ -256,7 +273,14 @@ int main() {
   combo_box = GTK_COMBO_BOX(gtk_builder_get_object(builder, "combo_box"));
   combo_filter = GTK_COMBO_BOX(gtk_builder_get_object(builder, "combo_filter"));
   scale_bar = GTK_SCALE(gtk_builder_get_object(builder, "scale_bar"));
-
+  struct button_state menu = {
+    .file_chooser_button = file_chooser_button,
+    .combo_box = combo_box,
+    .combo_filter = combo_filter,
+    .scale_bar = scale_bar ,
+    .play_button = play_button,
+  };
+  
   g_signal_connect(G_OBJECT(main_window), "destroy", (GCallback)gtk_main_quit,
                    NULL);
   g_signal_connect(G_OBJECT(combo_box), "changed",
@@ -264,7 +288,7 @@ int main() {
   g_signal_connect(G_OBJECT(combo_filter), "changed",
                    G_CALLBACK(filter_number), (void *)combo_box);
   g_signal_connect(G_OBJECT(play_button), "clicked",
-                   G_CALLBACK(play_function), (void *) scale_bar);
+                   G_CALLBACK(play_function), &menu);
   g_signal_connect(G_OBJECT(file_chooser_button), "selection-changed",
                    G_CALLBACK(sound_player), (void *)combo_filter);
   g_signal_connect(G_OBJECT(gl_area), "render", G_CALLBACK(render), NULL);
