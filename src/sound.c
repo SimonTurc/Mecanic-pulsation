@@ -129,7 +129,8 @@ float build_ETV_value(int intsize, float *fullpulsation)
 }
 
 
-void pulsation_array(char *filename,float *fullpulsation, int intsize)
+
+void pulsation_array(char *filename,float *result, int intsize)
 {
    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
@@ -155,18 +156,63 @@ void pulsation_array(char *filename,float *fullpulsation, int intsize)
   //Creating few arrays that will be used to create a smooth spike 
   //Now we have to fill the array with the sum of each 441 samples.
   //Lastly print the array
+  float max = 0;
+  float min = 255;
+  float fullpulsation[intsize];
   for(int i=0; i < intsize; i++)
     {
       fullpulsation[i] = SamplesSum(i*nbsamples, (i+1)*nbsamples, sound->abuf)/nbsamples;
+      if(fullpulsation[i] > max)
+	max = fullpulsation[i];
+      if(fullpulsation[i] < min)
+	min = fullpulsation[i];	
       printf("IndexZ: %i, Value: %f\n", i, fullpulsation[i]);
     }
   float ETV = build_ETV_value(intsize, fullpulsation);
   printf("ETV: %f\nETV/255: %f\n", ETV, ETV/255);
-  float coef = 0.756;//0378/0.5
+  float coef = 0.756;//0.378/0.5
   printf("Coef: %f\n", coef);
-  for(int i=0; i < intsize; i++)
+  float dif = 0;
+  if(fullpulsation[0] > 127)
+    result[0] = (fullpulsation[0] - 128) / (3.4 * (max - 128));
+  else
+    result[0] = 0.3-((fullpulsation[0]) / (3.4 * (127-min)));
+  for(int i=1; i < intsize; i++)
    {
-     fullpulsation[i] = 1.1+((((ETV/255)*fullpulsation[i])/100)*coef);
+     if(fullpulsation[i] > 127)
+       {
+       	 //fullpulsation[i] = 1.1+((((ETV/255)*fullpulsation[i])/100)*coef);
+	 result[i] = (fullpulsation[i] - 128) / (3.4 * (max - 128));
+	 dif = fullpulsation[i]-fullpulsation[i-1];
+	 if(dif < 0)
+	   {
+	     if(-(dif) > 0.5*ETV)
+	       result[i] -= (dif/(max-min))*0.2;
+	   }
+	 else
+	   {
+	     if(dif > 0.5*ETV)
+	       result[i] += (dif/(max-min))*0.2;
+	   }
+       }
+     else
+       {
+	 //fullpulsation[i] = -(1.1+((((ETV/255)*fullpulsation[i])/100)*coef));
+	 result[i] = 0.3-((fullpulsation[i]) / (3.4 * (127-min)));
+	 dif = fullpulsation[i]-fullpulsation[i-1];
+	 if(dif < 0)
+	   {
+	     if(-(dif) > 0.5*ETV)
+	       result[i] -= (dif/(max-min))*0.2;
+	   }
+	 else
+	   {
+	     if(dif > 0.5*ETV)
+	       result[i] += (dif/(max-min))*0.2;
+	   }
+       }
+     result[i] += 1;
+     printf("Index: %i -> Result: %f\n", i, result[i]);
    }
 
   Mix_FreeChunk(sound);
