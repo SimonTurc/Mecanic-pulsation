@@ -33,14 +33,7 @@ float sst[6] = {0.0, 0.0, 0.0,0.1, 0.1, 0.1};
 
 unsigned ssts[1] = {0};
 
-float cst[24] = {-1, 1, -1, 0.5,0.02,0.48,
-                -1, -1, 0.0, 0.5,0.02,0.48,
-                1, 1, 0.0 , 0.5,0.02,0.48,
-                1, -1, 0.0, 0.5,0.02,0.48,
-};
 
-unsigned scts[6] = {2,3,0,
-                    0,3,1};
 
 // One dimensional matrix array[i][j] = array[i * cols + j]
 float points[72] = {
@@ -87,7 +80,7 @@ static gboolean render(GtkGLArea* area) {
   // Nothing
   if(state == 0)
   {
-    draw_triangle(cst, scts, 24, 6);
+    draw_triangle(sst, ssts, 6, 1);
   }
 
   // Icosahedron
