@@ -26,13 +26,12 @@ struct button_state
 
 unsigned int index_points = 0;
 unsigned int index_sphere = 0;
-float points_sphere[252];
-unsigned int indexes_sphere[240];
+float points_sphere[972];
+unsigned int indexes_sphere[960];
 
 float sst[6] = {0.0, 0.0, 0.0,0.1, 0.1, 0.1};
 
 unsigned ssts[1] = {0};
-;
 
 // One dimensional matrix array[i][j] = array[i * cols + j]
 float points[72] = {
@@ -92,8 +91,8 @@ static gboolean render(GtkGLArea* area) {
   // Icosphere
   if(state == 2)
   {
-    on_motion(points_sphere, 42);
-    draw_triangle(points_sphere, indexes_sphere, 252, 240);
+    on_motion(points_sphere, 162);
+    draw_triangle(points_sphere, indexes_sphere, 972, 960);
   }
   gtk_gl_area_queue_render(area);
   return TRUE;
@@ -101,7 +100,7 @@ static gboolean render(GtkGLArea* area) {
 
 void* worker2(void* arg){
   float* deformation_factors = arg;
-  distortion_shape(deformation_factors, 10, points_sphere, 42);
+  distortion_shape(deformation_factors, 10, points_sphere, 162);
   distortion_shape(deformation_factors, 10, points, 12);
   return EXIT_SUCCESS;
 }
@@ -296,8 +295,9 @@ int main() {
   gtk_widget_show_all(main_window);
 
 
-  create_sphere(1, points_sphere, indexes_sphere, points, indexes, &index_points, &index_sphere);
-  scaling(points_sphere,42,0.6);
+  create_sphere(2, points_sphere, indexes_sphere, points, indexes, &index_points, &index_sphere);
+  g_print("%u\n",index_points);
+  scaling(points_sphere,162,0.6);
   scaling(points,12,0.6);
   
   gtk_main();
