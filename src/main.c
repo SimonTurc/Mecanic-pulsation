@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <time.h>
 
-int state;
+int state ;
 int filter_n;
 gchar *soundfile;
 struct button_state
@@ -32,6 +32,15 @@ unsigned int indexes_sphere[960];
 float sst[6] = {0.0, 0.0, 0.0,0.1, 0.1, 0.1};
 
 unsigned ssts[1] = {0};
+
+float cst[24] = {-1, 1, -1, 0.5,0.02,0.48,
+                -1, -1, 0.0, 0.5,0.02,0.48,
+                1, 1, 0.0 , 0.5,0.02,0.48,
+                1, -1, 0.0, 0.5,0.02,0.48,
+};
+
+unsigned scts[6] = {2,3,0,
+                    0,3,1};
 
 // One dimensional matrix array[i][j] = array[i * cols + j]
 float points[72] = {
@@ -78,7 +87,7 @@ static gboolean render(GtkGLArea* area) {
   // Nothing
   if(state == 0)
   {
-    draw_triangle(sst, ssts, 6, 1);
+    draw_triangle(cst, scts, 24, 6);
   }
 
   // Icosahedron
@@ -100,8 +109,8 @@ static gboolean render(GtkGLArea* area) {
 
 void* worker2(void* arg){
   float* deformation_factors = arg;
-  distortion_shape(deformation_factors, 10, points_sphere, 162);
-  distortion_shape(deformation_factors, 10, points, 12);
+  distortion_shape(deformation_factors, 50, points_sphere, 162);
+  //distortion_shape(deformation_factors, 10, points, 12);
   return EXIT_SUCCESS;
 }
 
@@ -119,8 +128,8 @@ void deformation_shape(float* deformation_factors){
 
 void *worker(void* arg)
 {
-  float deformation_factors[10];
-  for(int i = 0; i < 10; i++){
+  float deformation_factors[50];
+  for(int i = 0; i < 50; i++){
     deformation_factors[i] = float_rand(1.1, 1.55);
   }
   deformation_shape(deformation_factors);
@@ -296,7 +305,6 @@ int main() {
 
 
   create_sphere(2, points_sphere, indexes_sphere, points, indexes, &index_points, &index_sphere);
-  g_print("%u\n",index_points);
   scaling(points_sphere,162,0.6);
   scaling(points,12,0.6);
   

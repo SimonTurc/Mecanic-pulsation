@@ -122,8 +122,7 @@ void play_sound(char *file) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
   }
 
-  if (Mix_OpenAudio(44100, AUDIO_S8, 1, 1024) <
-      0) {
+  if (Mix_OpenAudio(44100, AUDIO_S8, 1, 268435456) < 0) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
   }
