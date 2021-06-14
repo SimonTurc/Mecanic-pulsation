@@ -38,7 +38,7 @@ static unsigned int CreateShader(const char *vertexShader,
 }
 
 void draw_triangle(float points[], unsigned int indexes[],
-                   unsigned int buffer_size, unsigned int index_buffer_size) {
+                   unsigned int buffer_size, unsigned int index_buffer_size,float al) {
   // glewExperimental = GL_TRUE;
 
   GLenum error = glewInit();
@@ -96,7 +96,7 @@ void draw_triangle(float points[], unsigned int indexes[],
   // int location = glGetUniformLocation(shader_programme, "u_Color");
   // glUniform3f(location, 0.1f, 0.3f, 0.8f);
 
-  glClearColor(0.1, 0.1, 0.1, 0.5);
+  glClearColor(0.1+al, 0.1, 0.1, 0.5);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glDrawElements(GL_TRIANGLES, index_buffer_size, GL_UNSIGNED_INT, NULL);

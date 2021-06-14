@@ -28,10 +28,10 @@ void slide(float point[],int nb_point,int start)
     {
       for (int j = start; j < nb_point+start; j++)
       {
-        point[j*6] += 40;
+        point[j*6] += 50;
       } 
     }
-    point[i*6] -= 0.5;
+    point[i*6] -= 0.2;
   }
 }
 

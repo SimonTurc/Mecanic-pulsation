@@ -24,18 +24,20 @@ int state;
 int filter_n;
 gchar *soundfile;
 float len;
+float al =0;
+int be= 1;
 
 unsigned int index_points = 0;
 unsigned int index_sphere = 0;
 float points_sphere[996];
 unsigned int indexes_sphere[966];
 
-float sct[24]=  {0.50,1,-1,0.9,0.5,0,
-    -0.50,-1,-1,0.9,0,0.1,
-    0.45,1,-1,0.9,0.3,0.1,
-    -0.45,-1,-1,0.9,0,0.1};
+float sct[24]=  {0.50+10,1,-1,0.9,0.5,0,
+    -0.50+10,-1,-1,0.9,0,0.1,
+    0.45+10,1,-1,0.9,0.3,0.1,
+    -0.45+10,-1,-1,0.9,0,0.1};
 
-unsigned int scts[6] = {2,0,3,1,2,3};
+unsigned int scts[6] = {0,3,2,1,2,3};
 
 // One dimensional matrix array[i][j] = array[i * cols + j]
 float points[96] = {
@@ -45,10 +47,10 @@ float points[96] = {
     0.0, -b,  a,   0.96, 0.42, 0.37, 0.0, -b,  -a,  0.4,  0.74, 0.42,
     b,   a,   0.0, 0.29, 0.6,  0.65, -b,  a,   0.0, 0.95, 0.25, 0.78,
     b,   -a,  0.0, 0.41, 0.34, 0.6,  -b,  -a,  0.0, 0.44, 0.63, 0.18,
-    0.50,1,-1,0.9,0.5,0,
-    -0.50,-1,-1,0.9,0,0.1,
-    0.45,1,-1,0.9,0.3,0.1,
-    -0.45,-1,-1,0.9,0,0.1};
+    0.50+10,1,-1,0.9,0.5,0,
+    -0.50+10,-1,-1,0.9,0,0.1,
+    0.45+10,1,-1,0.9,0.3,0.1,
+    -0.45+10,-1,-1,0.9,0,0.1};
 
 // triangle connectivity
 unsigned int indexes[66] = {0, 1,  4,  0, 4,  9, 9, 4, 5,  4,  8, 5, 4, 1,  8,
@@ -59,24 +61,30 @@ unsigned int indexes[66] = {0, 1,  4,  0, 4,  9, 9, 4, 5,  4,  8, 5, 4, 1,  8,
 
 static gboolean render(GtkGLArea *area) {
 
+  if (be == 1)
+    al += 0.001;
+  else
+    al -= 0.001;
+  if(al > 0.12 || al < -0.10)
+    be = -be;
   // Nothing
   if (state == 0) {
-    slide(sct, 4,0);
-    draw_triangle(sct, scts, 12, 4);
+    slide(sct, 4, 0);
+    draw_triangle(sct, scts, 24, 6,al);
   }
 
   // Icosahedron
   if (state == 1) {
     slide(points, 4,12);
     on_motion(points, 12);
-    draw_triangle(points, indexes, 96, 66);
+    draw_triangle(points, indexes, 96, 66,al);
   }
 
   // Icosphere
   if (state == 2) {
     slide(points_sphere, 4,162);
     on_motion(points_sphere, 162);
-    draw_triangle(points_sphere, indexes_sphere, 996, 966);
+    draw_triangle(points_sphere, indexes_sphere, 996, 966,al);
   }
   gtk_gl_area_queue_render(area);
   return TRUE;
