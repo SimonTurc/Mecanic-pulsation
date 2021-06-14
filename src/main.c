@@ -75,10 +75,10 @@ void *worker2(void *arg) {
   int ilen = (int)(len * 5);
   float *deformation_factors = arg;
   if (state == 1) {
-    distortion_shape(deformation_factors, ilen, points, 12);
+    distortion_shape(deformation_factors, ilen, points, 4);
   }
   if (state == 2) {
-    distortion_shape(deformation_factors, ilen, points_sphere, 162);
+    distortion_shape(deformation_factors, ilen, points_sphere, 44);
   }
 
   return EXIT_SUCCESS;
@@ -262,6 +262,7 @@ int main() {
                 &index_points, &index_sphere);
   scaling(points_sphere, 162, 0.6);
   scaling(points, 12, 0.6);
+  high(points_sphere, index_points);
 
   gtk_main();
 

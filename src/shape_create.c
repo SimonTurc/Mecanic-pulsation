@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 float float_rand(float mini, float maxi) {
   float scale = rand() / (float)RAND_MAX;
@@ -44,8 +45,10 @@ void add_to_arrays(float v[3], float points_array[], unsigned int index_array[],
   if (current_index == -1) {
     index_array[*is] = *ip / 6;
     add_vertex(v, points_array, ip);
-  } else
+  }
+  else {
     index_array[*is] = current_index;
+  }
   *is += 1;
 }
 

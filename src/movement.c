@@ -33,3 +33,12 @@ void deformation(float point[], int index_point, float deformation_factor) {
   point[index_point * 6 + 1] = point[index_point * 6 + 1] * deformation_factor;
   point[index_point * 6 + 2] = point[index_point * 6 + 2] * deformation_factor;
 }
+
+void high(float point[], int index_point) {
+  for(int i = 0; i < index_point/6; i += 1){
+    if(point[i * 6 + 1] < -0.30){
+      printf("%i\n",i);
+    }
+  }
+}
+

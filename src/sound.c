@@ -164,7 +164,7 @@ void pulsation_array(char *filename, float *result, int intsize) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
-  HighPassFilter(sound->abuf, sound->alen);
+  //HighPassFilter(sound->abuf, sound->alen);
   int nbsamples = 8820;
   // float size = sound_time * 5;
   // Creating few arrays that will be used to create a smooth spike
@@ -188,12 +188,12 @@ void pulsation_array(char *filename, float *result, int intsize) {
   printf("Coef: %f\n", coef);
   float dif = 0;
   if (fullpulsation[0] > 127)
-    result[0] = (fullpulsation[0] - 128) / (3.4 * (max - 128));
+    result[0] = 1 + ((fullpulsation[0] - 128) / (3.4 * (max - 128)));
   else
-    result[0] = 0.3 - ((fullpulsation[0]) / (3.4 * (127 - min)));
+    result[0] = -1 - (0.3 - ((fullpulsation[0]) / (3.4 * (127 - min))));
+  printf("Index: 0 -> Result: %f\n", result[0]);
   for (int i = 1; i < intsize; i++) {
     if (fullpulsation[i] > 127) {
-      // fullpulsation[i] = 1.1+((((ETV/255)*fullpulsation[i])/100)*coef);
       result[i] = 1.1 + ((fullpulsation[i] - 128) / (5 * (max - 128)));
       dif = fullpulsation[i] - fullpulsation[i - 1];
       if (dif < 0) {
@@ -204,8 +204,7 @@ void pulsation_array(char *filename, float *result, int intsize) {
           result[i] += (dif / (max - min)) * 0.2;
       }
     } else {
-      // fullpulsation[i] = -(1.1+((((ETV/255)*fullpulsation[i])/100)*coef));
-      result[i] = 1.1 + (0.3 - ((fullpulsation[i]) / (5 * (127 - min))));
+      result[i] = -1.1 -(0.3 - ((fullpulsation[i]) / (5 * (127 - min))));
       dif = fullpulsation[i] - fullpulsation[i - 1];
       if (dif < 0) {
         if (-(dif) > 0.5 * ETV)
@@ -261,7 +260,7 @@ void play_sound(char *file) {
   }
   fprintf(fptr,"]");
   fclose(fptr);*/
-  HighPassFilter(sound->abuf, sound->alen);
+  //HighPassFilter(sound->abuf, sound->alen);
   while (Mix_Playing(0)) {
   }
 
