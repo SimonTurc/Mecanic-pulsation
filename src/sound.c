@@ -92,7 +92,7 @@ void LowPassEdit(Uint8 *buffer, int length, float fBeta){//Edit the buffer of
 sample float FinalBeta; if(length != 0) for(int i = 0; i < length; i++)
       {
         FinalBeta = fBeta * (float) buffer[i] + (1.0 - fBeta) * (float)
-buffer[i-1];//Formula of low pass filter 
+buffer[i-1];//Formula of low pass filter
         buffer[i] = (int) FinalBeta;
       }
 }
@@ -102,45 +102,38 @@ void LowPassFilter(Uint8 *buffer, int length){// Just apply the filter
   LowPassEdit(buffer, length, fBeta);
   }*/
 
-float HighPassCoef()
-{
-  //Calculates the coefficient applied to each sample
-  float RC = 1.0/(441 * 2 * M_PI);
-  float dt = 1.0/44100;
-  float falpha = RC/(RC+dt);
+float HighPassCoef() {
+  // Calculates the coefficient applied to each sample
+  float RC = 1.0 / (441 * 2 * M_PI);
+  float dt = 1.0 / 44100;
+  float falpha = RC / (RC + dt);
   return falpha;
 }
 
-void HighPassEdit(Uint8 *buffer, int length, float falpha)
-{
+void HighPassEdit(Uint8 *buffer, int length, float falpha) {
   float FinalAlpha;
   float temp = buffer[0];
-  if(length != 0)
-    {
-      for(int i = 1; i < length; i++)
-	{
-	  FinalAlpha = falpha *((float) buffer[i-1] + buffer[i] - temp);
-	  temp = buffer[i];
-	  buffer[i] = (int) FinalAlpha;
-	}
-    } 
+  if (length != 0) {
+    for (int i = 1; i < length; i++) {
+      FinalAlpha = falpha * ((float)buffer[i - 1] + buffer[i] - temp);
+      temp = buffer[i];
+      buffer[i] = (int)FinalAlpha;
+    }
+  }
 }
 
-void HighPassFilter(Uint8 *buffer, int length)
-{
+void HighPassFilter(Uint8 *buffer, int length) {
   float falpha = HighPassCoef();
   printf("Alpha: %f\n", falpha);
   HighPassEdit(buffer, length, falpha);
 }
-
 
 float build_ETV_value(int intsize, float *fullpulsation) {
   int median[intsize];
   for (int i = 0; i < intsize; i++)
     median[i] = fullpulsation[i];
   quickSort(median, 0, intsize - 1);
-  int median_value = median[intsize / 2];
-  printf("Median value : %i \n", median_value);
+  // int median_value = median[intsize / 2];
   float ecart_type_value = ecart_type(median, intsize);
   return ecart_type_value;
 }
@@ -164,7 +157,7 @@ void pulsation_array(char *filename, float *result, int intsize) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
-  //HighPassFilter(sound->abuf, sound->alen);
+  // HighPassFilter(sound->abuf, sound->alen);
   int nbsamples = 8820;
   // float size = sound_time * 5;
   // Creating few arrays that will be used to create a smooth spike
@@ -180,18 +173,14 @@ void pulsation_array(char *filename, float *result, int intsize) {
       max = fullpulsation[i];
     if (fullpulsation[i] < min)
       min = fullpulsation[i];
-    printf("IndexZ: %i, Value: %f\n", i, fullpulsation[i]);
   }
   float ETV = build_ETV_value(intsize, fullpulsation);
-  printf("ETV: %f\nETV/255: %f\n", ETV, ETV / 255);
-  float coef = 0.756; // 0.378/0.5
-  printf("Coef: %f\n", coef);
+  // float coef = 0.756; // 0.378/0.5
   float dif = 0;
   if (fullpulsation[0] > 127)
     result[0] = 1 + ((fullpulsation[0] - 128) / (3.4 * (max - 128)));
   else
     result[0] = -1 - (0.3 - ((fullpulsation[0]) / (3.4 * (127 - min))));
-  printf("Index: 0 -> Result: %f\n", result[0]);
   for (int i = 1; i < intsize; i++) {
     if (fullpulsation[i] > 127) {
       result[i] = 1.1 + ((fullpulsation[i] - 128) / (5 * (max - 128)));
@@ -204,7 +193,7 @@ void pulsation_array(char *filename, float *result, int intsize) {
           result[i] += (dif / (max - min)) * 0.2;
       }
     } else {
-      result[i] = -1.1 -(0.3 - ((fullpulsation[i]) / (5 * (127 - min))));
+      result[i] = -1.1 - (0.3 - ((fullpulsation[i]) / (5 * (127 - min))));
       dif = fullpulsation[i] - fullpulsation[i - 1];
       if (dif < 0) {
         if (-(dif) > 0.5 * ETV)
@@ -214,7 +203,6 @@ void pulsation_array(char *filename, float *result, int intsize) {
           result[i] += (dif / (max - min)) * 0.2;
       }
     }
-    printf("Index: %i -> Result: %f\n", i, result[i]);
   }
 
   Mix_FreeChunk(sound);
@@ -260,7 +248,7 @@ void play_sound(char *file) {
   }
   fprintf(fptr,"]");
   fclose(fptr);*/
-  //HighPassFilter(sound->abuf, sound->alen);
+  // HighPassFilter(sound->abuf, sound->alen);
   while (Mix_Playing(0)) {
   }
 

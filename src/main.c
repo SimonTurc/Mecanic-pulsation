@@ -124,7 +124,6 @@ static gboolean sound_player(GtkFileChooser *file_chooser, void *arg) {
   GtkComboBox *combo_filter = arg;
   soundfile = gtk_file_chooser_get_filename(file_chooser);
   gtk_widget_set_sensitive(GTK_WIDGET(combo_filter), TRUE);
-  g_print("%s\n", soundfile);
   if (soundfile != NULL)
     get_sound_len(soundfile, &len);
 
@@ -262,7 +261,6 @@ int main() {
                 &index_points, &index_sphere);
   scaling(points_sphere, 162, 0.6);
   scaling(points, 12, 0.6);
-  high(points_sphere, index_points);
 
   gtk_main();
 
