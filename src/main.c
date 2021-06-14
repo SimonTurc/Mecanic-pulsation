@@ -78,7 +78,7 @@ void *worker2(void *arg) {
     distortion_shape(deformation_factors, ilen, points, 4);
   }
   if (state == 2) {
-    distortion_shape(deformation_factors, ilen, points_sphere, 44);
+    distortion_shape(deformation_factors, ilen, points_sphere, 43);
   }
 
   return EXIT_SUCCESS;

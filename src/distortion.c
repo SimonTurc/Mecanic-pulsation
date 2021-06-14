@@ -27,7 +27,7 @@ void distortion_shape(float *deformation_factors,
     randomPoint += 1;
     unsigned int randomPointUp = randomPoint + 1;
     unsigned int randomPointDown = randomPoint - 1;
-
+    
     int p = 0;
     int pUp = 0;
     int pDown = 0;
@@ -42,7 +42,7 @@ void distortion_shape(float *deformation_factors,
         pUp = low_icosahedron[randomPointUp];
         pDown = low_icosahedron[randomPointDown];
       }
-    } else if (nb_points == 44) {
+    } else if (nb_points == 43) {
       if (deformation_factors[i] > 0) {
         p = high_icosphere[randomPoint];
         pUp = high_icosphere[randomPointUp];
