@@ -182,7 +182,7 @@ void pulsation_array(char *filename,float *result, int intsize)
      if(fullpulsation[i] > 127)
        {
        	 //fullpulsation[i] = 1.1+((((ETV/255)*fullpulsation[i])/100)*coef);
-	 result[i] = (fullpulsation[i] - 128) / (3.4 * (max - 128));
+	 result[i] = 1.1 +((fullpulsation[i] - 128) / (5 * (max - 128)));
 	 dif = fullpulsation[i]-fullpulsation[i-1];
 	 if(dif < 0)
 	   {
@@ -198,7 +198,7 @@ void pulsation_array(char *filename,float *result, int intsize)
      else
        {
 	 //fullpulsation[i] = -(1.1+((((ETV/255)*fullpulsation[i])/100)*coef));
-	 result[i] = 0.3-((fullpulsation[i]) / (3.4 * (127-min)));
+	 result[i] = 1.1 + (0.3-((fullpulsation[i]) / (5 * (127-min))));
 	 dif = fullpulsation[i]-fullpulsation[i-1];
 	 if(dif < 0)
 	   {
@@ -211,7 +211,6 @@ void pulsation_array(char *filename,float *result, int intsize)
 	       result[i] += (dif/(max-min))*0.2;
 	   }
        }
-     result[i] += 1;
      printf("Index: %i -> Result: %f\n", i, result[i]);
    }
 
