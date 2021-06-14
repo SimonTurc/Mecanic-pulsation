@@ -37,15 +37,16 @@ static unsigned int CreateShader(const char *vertexShader,
   return program;
 }
 
-void draw_triangle(float points[], unsigned int indexes[], unsigned int buffer_size, unsigned int index_buffer_size) {
-  //glewExperimental = GL_TRUE;
+void draw_triangle(float points[], unsigned int indexes[],
+                   unsigned int buffer_size, unsigned int index_buffer_size) {
+  // glewExperimental = GL_TRUE;
 
   GLenum error = glewInit();
   if (error != GLEW_OK) {
     errx(1, "Unable to init GLEW");
   }
 
-  //printf("%s\n", glGetString(GL_VERSION));
+  // printf("%s\n", glGetString(GL_VERSION));
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_FRONT);
@@ -63,12 +64,14 @@ void draw_triangle(float points[], unsigned int indexes[], unsigned int buffer_s
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),(void *)(3 * sizeof(float)));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
 
   unsigned int ibo;
   glGenBuffers(1, &ibo);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_buffer_size * sizeof(unsigned int), indexes,
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+               index_buffer_size * sizeof(unsigned int), indexes,
                GL_STATIC_DRAW);
 
   const char *vertex_shader = "#version 450 core\n"
@@ -90,8 +93,8 @@ void draw_triangle(float points[], unsigned int indexes[], unsigned int buffer_s
   unsigned int shader_programme = CreateShader(vertex_shader, fragment_shader);
   glUseProgram(shader_programme);
 
-  //int location = glGetUniformLocation(shader_programme, "u_Color");
-  //glUniform3f(location, 0.1f, 0.3f, 0.8f);
+  // int location = glGetUniformLocation(shader_programme, "u_Color");
+  // glUniform3f(location, 0.1f, 0.3f, 0.8f);
 
   glClearColor(0.1, 0.1, 0.1, 0.5);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
