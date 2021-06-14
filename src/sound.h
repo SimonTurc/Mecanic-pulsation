@@ -18,9 +18,16 @@ float variance(int *arr, int array_size, float average_value);
 double ecart_type(int *arr, int array_size);
 
 float LowPassCoef();//Calculate coefficient for LowPassFilter
+
 void LowPassEdit(Uint8 *buffer, int length, float fBeta);//Edit the buffer of samples
 
 void LowPassFilter(Uint8 *buffer, int length);
+
+float HighPassCoef();
+
+void HighPassEdit(Uint8 *buffer, int length, float falpha);
+
+void HighPassFilter(Uint8 *buffer, int length);
 
 float build_ETV_value(int intsize, float *fullpulsation);
 

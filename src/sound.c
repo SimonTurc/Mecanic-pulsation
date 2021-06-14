@@ -92,7 +92,8 @@ void LowPassEdit(Uint8 *buffer, int length, float fBeta){//Edit the buffer of
 sample float FinalBeta; if(length != 0) for(int i = 0; i < length; i++)
       {
         FinalBeta = fBeta * (float) buffer[i] + (1.0 - fBeta) * (float)
-buffer[i-1];//Formula of low pass filter buffer[i] = (int) FinalBeta;
+buffer[i-1];//Formula of low pass filter 
+        buffer[i] = (int) FinalBeta;
       }
 }
 void LowPassFilter(Uint8 *buffer, int length){// Just apply the filter
@@ -100,6 +101,38 @@ void LowPassFilter(Uint8 *buffer, int length){// Just apply the filter
   printf("%f\n", fBeta);
   LowPassEdit(buffer, length, fBeta);
   }*/
+
+float HighPassCoef()
+{
+  //Calculates the coefficient applied to each sample
+  float RC = 1.0/(441 * 2 * M_PI);
+  float dt = 1.0/44100;
+  float falpha = RC/(RC+dt);
+  return falpha;
+}
+
+void HighPassEdit(Uint8 *buffer, int length, float falpha)
+{
+  float FinalAlpha;
+  float temp = buffer[0];
+  if(length != 0)
+    {
+      for(int i = 1; i < length; i++)
+	{
+	  FinalAlpha = falpha *((float) buffer[i-1] + buffer[i] - temp);
+	  temp = buffer[i];
+	  buffer[i] = (int) FinalAlpha;
+	}
+    } 
+}
+
+void HighPassFilter(Uint8 *buffer, int length)
+{
+  float falpha = HighPassCoef();
+  printf("Alpha: %f\n", falpha);
+  HighPassEdit(buffer, length, falpha);
+}
+
 
 float build_ETV_value(int intsize, float *fullpulsation) {
   int median[intsize];
@@ -131,6 +164,7 @@ void pulsation_array(char *filename, float *result, int intsize) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
+  HighPassFilter(sound->abuf, sound->alen);
   int nbsamples = 8820;
   // float size = sound_time * 5;
   // Creating few arrays that will be used to create a smooth spike
@@ -227,7 +261,7 @@ void play_sound(char *file) {
   }
   fprintf(fptr,"]");
   fclose(fptr);*/
-
+  HighPassFilter(sound->abuf, sound->alen);
   while (Mix_Playing(0)) {
   }
 
