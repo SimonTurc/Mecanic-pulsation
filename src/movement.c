@@ -20,6 +20,21 @@ void on_motion(float point[], int nb_point)
   }
 }
 
+void slide(float point[],int nb_point,int start)
+{
+  for (int i = start; i < nb_point+start; i++)
+  {
+    if (point[i*6] <= -20)
+    {
+      for (int j = start; j < nb_point+start; j++)
+      {
+        point[j*6] += 40;
+      } 
+    }
+    point[i*6] -= 0.5;
+  }
+}
+
 void scaling(float point[], int nb_point, float scaling_factor) {
   for (int i = 0; i < nb_point; i++) {
     point[i * 6] = point[i * 6] * scaling_factor;

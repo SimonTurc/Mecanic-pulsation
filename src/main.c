@@ -27,45 +27,56 @@ float len;
 
 unsigned int index_points = 0;
 unsigned int index_sphere = 0;
-float points_sphere[972];
-unsigned int indexes_sphere[960];
+float points_sphere[996];
+unsigned int indexes_sphere[966];
 
-float sst[6] = {0.0, 0.0, 0.0, 0.1, 0.1, 0.1};
+float sct[24]=  {0.50,1,-1,0.9,0.5,0,
+    -0.50,-1,-1,0.9,0,0.1,
+    0.45,1,-1,0.9,0.3,0.1,
+    -0.45,-1,-1,0.9,0,0.1};
 
-unsigned ssts[1] = {0};
+unsigned int scts[6] = {2,0,3,1,2,3};
 
 // One dimensional matrix array[i][j] = array[i * cols + j]
-float points[72] = {
+float points[96] = {
     -a,  0.0, b,   0.5,  0.02, 0.48, a,   0.0, b,   0.53, 0.02, 0.27,
     -a,  0.0, -b,  0.23, 0.84, 0.49, a,   0.0, -b,  0.18, 0.41, 0.55,
     0.0, b,   a,   0.26, 0.65, 0.6,  0.0, b,   -a,  0.65, 0.87, 0.55,
     0.0, -b,  a,   0.96, 0.42, 0.37, 0.0, -b,  -a,  0.4,  0.74, 0.42,
     b,   a,   0.0, 0.29, 0.6,  0.65, -b,  a,   0.0, 0.95, 0.25, 0.78,
-    b,   -a,  0.0, 0.41, 0.34, 0.6,  -b,  -a,  0.0, 0.44, 0.63, 0.18};
+    b,   -a,  0.0, 0.41, 0.34, 0.6,  -b,  -a,  0.0, 0.44, 0.63, 0.18,
+    0.50,1,-1,0.9,0.5,0,
+    -0.50,-1,-1,0.9,0,0.1,
+    0.45,1,-1,0.9,0.3,0.1,
+    -0.45,-1,-1,0.9,0,0.1};
 
 // triangle connectivity
-unsigned int indexes[60] = {0, 1,  4,  0, 4,  9, 9, 4, 5,  4,  8, 5, 4, 1,  8,
+unsigned int indexes[66] = {0, 1,  4,  0, 4,  9, 9, 4, 5,  4,  8, 5, 4, 1,  8,
                             8, 1,  10, 8, 10, 3, 5, 8, 3,  5,  3, 2, 2, 3,  7,
                             7, 3,  10, 7, 10, 6, 7, 6, 11, 11, 6, 0, 0, 6,  1,
-                            6, 10, 1,  9, 11, 0, 9, 2, 11, 9,  5, 2, 7, 11, 2};
+                            6, 10, 1,  9, 11, 0, 9, 2, 11, 9,  5, 2, 7, 11, 2,
+                            12,15,14,13,14,15};
 
 static gboolean render(GtkGLArea *area) {
 
   // Nothing
   if (state == 0) {
-    draw_triangle(sst, ssts, 6, 1);
+    slide(sct, 4,0);
+    draw_triangle(sct, scts, 12, 4);
   }
 
   // Icosahedron
   if (state == 1) {
+    slide(points, 4,12);
     on_motion(points, 12);
-    draw_triangle(points, indexes, 72, 60);
+    draw_triangle(points, indexes, 96, 66);
   }
 
   // Icosphere
   if (state == 2) {
+    slide(points_sphere, 4,162);
     on_motion(points_sphere, 162);
-    draw_triangle(points_sphere, indexes_sphere, 972, 960);
+    draw_triangle(points_sphere, indexes_sphere, 996, 966);
   }
   gtk_gl_area_queue_render(area);
   return TRUE;
@@ -259,6 +270,14 @@ int main() {
 
   create_sphere(2, points_sphere, indexes_sphere, points, indexes,
                 &index_points, &index_sphere);
+  for (size_t i = 972 ; i < 996; i++)
+  {
+    points_sphere[i] = sct[i-972];
+  }
+  for (size_t j = 960; j < 966; j++)
+  {
+    indexes_sphere[j] = scts[j-960]+162;
+  }
   scaling(points_sphere, 162, 0.6);
   scaling(points, 12, 0.6);
 
