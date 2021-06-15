@@ -138,6 +138,70 @@ float build_ETV_value(int intsize, float *fullpulsation) {
   return ecart_type_value;
 }
 
+void filter_lp(Uint8 *buffer)
+{
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
+  }
+
+  if (Mix_OpenAudio(44100, AUDIO_S8, 1, 1024) < 0) {
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
+  }
+
+  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile("test_files/piano2.wav", "rb"), 1);
+  if (sound == NULL) {
+    Mix_CloseAudio();
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
+  }
+  int j = 0;
+  for(Uint32 i = 0; i < sound->alen; i++)
+    {
+      if(i%44100 > 2000)
+	{
+	  buffer[j] = sound->abuf[i];
+	  j++;
+	}
+    }
+  printf("J: %i\n", j);
+  Mix_FreeChunk(sound);
+  Mix_CloseAudio();
+  SDL_Quit();
+}
+
+void filter_hp(Uint8 *buffer)
+{
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
+  }
+
+  if (Mix_OpenAudio(44100, AUDIO_S8, 1, 1024) < 0) {
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
+  }
+
+  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile("test_files/piano2.wav", "rb"), 1);
+  if (sound == NULL) {
+    Mix_CloseAudio();
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
+  }
+  int j = 0;
+  for(Uint32 i = 0; i < sound->alen; i++)
+    {
+      if(i%44100 < 42100)
+	{
+	  buffer[j] = sound->abuf[i];
+	  j++;
+	}
+    }
+  printf("J: %i\n", j);
+  Mix_FreeChunk(sound);
+  Mix_CloseAudio();
+  SDL_Quit();
+}
+
 void pulsation_array(char *filename, float *result, int intsize) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
@@ -209,13 +273,19 @@ void pulsation_array(char *filename, float *result, int intsize) {
   Mix_CloseAudio();
   SDL_Quit();
 }
-void play_sound(char *file) {
 
+void play_sound(char *file, float len) {
+  int ilen = (int)(len*42300);
+  printf("%i\n", ilen);
+  Uint8 buffer[ilen];
+  //filter_lp(buffer);
+  filter_hp(buffer);
+  //Faire un if qui check quel bouton GTK est activé et load le son selon ca
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
   }
 
-  if (Mix_OpenAudio(44100, AUDIO_S8, 1, 268435456) < 0) {
+  if (Mix_OpenAudio(42100, AUDIO_S8, 1, 1024) < 0) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
   }
@@ -230,23 +300,33 @@ void play_sound(char *file) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
-
+  //Idem si le bouton GTK est allumé pr 
+  //for(Uint32 i = 0; i < sound->alen; i++)
+  //{
+  //  sound->abuf[i] = buffer[i];
+  //}
+  /*264600*/
+  for(int i = 0; i < ilen; i++)
+  {
+     sound->abuf[i] = buffer[i];
+  }
+  //HighPassFilter(sound->abuf, sound->alen);
   if (Mix_PlayChannel(0, sound, 0) == -1) {
     Mix_CloseAudio();
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to play on the channel 0 : %s", Mix_GetError());
-  }
+    }
 
   /*FILE *fptr;
-  fptr = fopen("value.txt","w");
-  fprintf(fptr,"[");
+  fptr = fopen("value.csv","w");
+  //fprintf(fptr,"[");
   for (Uint32 i = 0; i < 20000; ++i) {
     if (i == (sound->alen) - 1)
       fprintf(fptr, "%d", sound->abuf[i]);
     else
       fprintf(fptr, "%d,", sound->abuf[i]);
   }
-  fprintf(fptr,"]");
+  //fprintf(fptr,"]");
   fclose(fptr);*/
   // HighPassFilter(sound->abuf, sound->alen);
   while (Mix_Playing(0)) {

@@ -121,7 +121,7 @@ void *worker(void *arg) {
   deformation_shape(deformation_factors);
   struct button_state *menu = arg;
   if (soundfile != NULL) {
-    play_sound(soundfile);
+    play_sound(soundfile,len);
   }
   gtk_widget_set_sensitive(GTK_WIDGET(menu->play_button), TRUE);
   gtk_widget_set_sensitive(GTK_WIDGET(menu->file_chooser_button), TRUE);
