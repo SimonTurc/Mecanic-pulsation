@@ -61,10 +61,8 @@
             <items>
               <item id="&lt; &gt;" translatable="yes"> </item>
               <item id="&lt;f1&gt;" translatable="yes">Pas de filtre</item>
-              <item id="&lt;f1&gt;" translatable="yes">filtre1</item>
-              <item id="&lt;f2&gt;" translatable="yes">filtre2</item>
-              <item id="&lt;f3&gt;" translatable="yes">filtre3</item>
-              <item id="&lt;f4&gt;" translatable="yes">filtre4</item>
+              <item id="&lt;f1&gt;" translatable="yes">Filtre pass-haut</item>
+              <item id="&lt;f2&gt;" translatable="yes">Filtre pass-bas</item>
             </items>
           </object>
           <packing>

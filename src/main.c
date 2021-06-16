@@ -121,7 +121,7 @@ void *worker(void *arg) {
   deformation_shape(deformation_factors);
   struct button_state *menu = arg;
   if (soundfile != NULL) {
-    play_sound(soundfile,len);
+    play_sound(soundfile,len,filter_n);
   }
   gtk_widget_set_sensitive(GTK_WIDGET(menu->play_button), TRUE);
   gtk_widget_set_sensitive(GTK_WIDGET(menu->file_chooser_button), TRUE);
@@ -152,28 +152,16 @@ static gboolean sound_player(GtkFileChooser *file_chooser, void *arg) {
 static gboolean filter_number(GtkComboBox *filter_box, void *arg) {
   GtkComboBox *combo_box = arg;
   switch (gtk_combo_box_get_active(filter_box)) {
-  case 0:
+  case 1:
     filter_n = 0;
     break;
 
-  case 1:
+  case 2:
     filter_n = 1;
     break;
 
-  case 2:
-    filter_n = 2;
-    break;
-
   case 3:
-    filter_n = 3;
-    break;
-
-  case 4:
-    filter_n = 4;
-    break;
-
-  case 5:
-    filter_n = 5;
+    filter_n = 2;
     break;
   }
   gtk_widget_set_sensitive(GTK_WIDGET(combo_box), TRUE);

@@ -138,7 +138,7 @@ float build_ETV_value(int intsize, float *fullpulsation) {
   return ecart_type_value;
 }
 
-void filter_lp(Uint8 *buffer)
+void filter_lp(Uint8 *buffer,char* soundfile)
 {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
@@ -149,7 +149,7 @@ void filter_lp(Uint8 *buffer)
     errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
   }
 
-  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile("test_files/piano2.wav", "rb"), 1);
+  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile(soundfile, "rb"), 1);
   if (sound == NULL) {
     Mix_CloseAudio();
     SDL_Quit();
@@ -170,7 +170,7 @@ void filter_lp(Uint8 *buffer)
   SDL_Quit();
 }
 
-void filter_hp(Uint8 *buffer)
+void filter_hp(Uint8 *buffer, char* soundfile)
 {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
@@ -181,7 +181,7 @@ void filter_hp(Uint8 *buffer)
     errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
   }
 
-  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile("test_files/piano2.wav", "rb"), 1);
+  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile(soundfile, "rb"), 1);
   if (sound == NULL) {
     Mix_CloseAudio();
     SDL_Quit();
@@ -274,18 +274,43 @@ void pulsation_array(char *filename, float *result, int intsize) {
   SDL_Quit();
 }
 
-void play_sound(char *file, float len) {
-  int ilen = (int)(len*42300);
-  printf("%i\n", ilen);
+void play_sound(char *file, float len,int state) {
+  int frequency ;
+  int ilen =0;
+  switch (state)
+  {
+  case 0:
+    frequency = 44100; 
+    break;
+  case 1:
+    ilen = (int)(len*42300);
+    frequency = 42100; 
+    break;
+  case 2:
+    ilen = (int)(len*42100);
+    frequency = 42100; 
+    break;
+  }
   Uint8 buffer[ilen];
+  if (buffer != NULL)
+  {
+  }
+  if (state == 1)
+  {
+    filter_hp(buffer,file);
+  }
+  if (state == 2)
+  {
+    filter_lp(buffer,file);
+  }
+  
   //filter_lp(buffer);
-  filter_hp(buffer);
   //Faire un if qui check quel bouton GTK est activé et load le son selon ca
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
   }
 
-  if (Mix_OpenAudio(42100, AUDIO_S8, 1, 1024) < 0) {
+  if (Mix_OpenAudio(frequency, AUDIO_S8, 1, 1024) < 0) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
   }
@@ -300,16 +325,25 @@ void play_sound(char *file, float len) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
-  //Idem si le bouton GTK est allumé pr 
-  //for(Uint32 i = 0; i < sound->alen; i++)
-  //{
-  //  sound->abuf[i] = buffer[i];
-  //}
-  /*264600*/
-  for(int i = 0; i < ilen; i++)
+
+  if (state == 1)
   {
-     sound->abuf[i] = buffer[i];
+    /*264600*/
+    for(Uint32 i = 0; i < sound->alen; i++)
+    {
+      sound->abuf[i] = buffer[i];
+    }
   }
+
+  if (state == 2)
+  {
+    /*264600*/
+    for(int i = 0; i < ilen; i++)
+    {
+      sound->abuf[i] = buffer[i];
+    }
+  }
+
   //HighPassFilter(sound->abuf, sound->alen);
   if (Mix_PlayChannel(0, sound, 0) == -1) {
     Mix_CloseAudio();

@@ -3,9 +3,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_mixer.h>
 
-int SamplesSum(int start, int end, Uint8 *buffer); //Sum 441 samples
+int SamplesSum(int start, int end, Uint8 *buffer); // Sum 441 samples
 
-void swap(int *a, int* b);
+void swap(int *a, int *b);
 
 int partition(int *array, int low_index, int high_index);
 
@@ -17,9 +17,9 @@ float variance(int *arr, int array_size, float average_value);
 
 double ecart_type(int *arr, int array_size);
 
-float LowPassCoef();//Calculate coefficient for LowPassFilter
+float LowPassCoef(); // Calculate coefficient for LowPassFilter
 
-void LowPassEdit(Uint8 *buffer, int length, float fBeta);//Edit the buffer of samples
+void LowPassEdit(Uint8 *buffer, int length, float fBeta); // Edit the buffer of samples
 
 void LowPassFilter(Uint8 *buffer, int length);
 
@@ -31,8 +31,8 @@ void HighPassFilter(Uint8 *buffer, int length);
 
 float build_ETV_value(int intsize, float *fullpulsation);
 
-void pulsation_array(char *filename,float *result, int intsize);
+void pulsation_array(char *filename, float *result, int intsize);
 
-void play_sound(char *file, float len);
+void play_sound(char *file, float len, int state);
 
-#endif //MECHANIC_PULSATION_SOUND_H
+#endif // MECHANIC_PULSATION_SOUND_H
