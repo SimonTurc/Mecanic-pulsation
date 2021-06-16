@@ -31,7 +31,7 @@ void HighPassFilter(Uint8 *buffer, int length);
 
 float build_ETV_value(int intsize, float *fullpulsation);
 
-void pulsation_array(char *filename, float *result, int intsize);
+void pulsation_array(char *filename, float *result, int intsize, int state);
 
 void play_sound(char *file, float len, int state);
 

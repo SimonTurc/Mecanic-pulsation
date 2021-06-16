@@ -62,19 +62,14 @@ float variance(int *arr, int array_size, float average_value) {
   for (int i = 0; i < array_size; i++) {
     variance +=
         ((float)arr[i] - average_value) * ((float)arr[i] - average_value);
-    // printf("val %i %f \n", i, (float) arr[i] - average_value);
   }
-  // printf("Variance1: %f \n", variance);
   variance = variance / (float)array_size;
-  // printf("%i \n", array_size);
   return variance;
 }
 
 double ecart_type(int *arr, int array_size) {
   float average_value = average(arr, array_size);
-  // printf("%f \n", average_value);
   float variance_value = variance(arr, array_size, average_value);
-  // printf("Variance: %f \n", variance_value);
   double dvariance = (double)variance_value;
   double ecart_type_value = sqrtf(dvariance);
   return ecart_type_value;
@@ -98,7 +93,6 @@ buffer[i-1];//Formula of low pass filter
 }
 void LowPassFilter(Uint8 *buffer, int length){// Just apply the filter
   float fBeta = LowPassCoef();
-  printf("%f\n", fBeta);
   LowPassEdit(buffer, length, fBeta);
   }*/
 
@@ -124,7 +118,6 @@ void HighPassEdit(Uint8 *buffer, int length, float falpha) {
 
 void HighPassFilter(Uint8 *buffer, int length) {
   float falpha = HighPassCoef();
-  printf("Alpha: %f\n", falpha);
   HighPassEdit(buffer, length, falpha);
 }
 
@@ -164,7 +157,6 @@ void filter_lp(Uint8 *buffer,char* soundfile)
 	  j++;
 	}
     }
-  printf("J: %i\n", j);
   Mix_FreeChunk(sound);
   Mix_CloseAudio();
   SDL_Quit();
@@ -196,18 +188,33 @@ void filter_hp(Uint8 *buffer, char* soundfile)
 	  j++;
 	}
     }
-  printf("J: %i\n", j);
   Mix_FreeChunk(sound);
   Mix_CloseAudio();
   SDL_Quit();
 }
 
-void pulsation_array(char *filename, float *result, int intsize) {
+void pulsation_array(char *filename, float *result, int intsize,int state) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
   }
-
-  if (Mix_OpenAudio(44100, AUDIO_S8, 1, 1024) < 0) {
+  int nbsamples = 0;
+  int frequency = 0;
+  switch (state)
+    {
+    case 0:
+      frequency = 44100;
+      nbsamples = 8820;
+      break;
+    case 1:
+      frequency = 42100;
+      nbsamples = 8420; 
+      break;
+    case 2:
+      frequency = 42100;
+      nbsamples = 8420; 
+      break;
+    }
+  if (Mix_OpenAudio(frequency, AUDIO_S8, 1, 1024) < 0) {
     SDL_Quit();
     errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
   }
@@ -222,7 +229,6 @@ void pulsation_array(char *filename, float *result, int intsize) {
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
   // HighPassFilter(sound->abuf, sound->alen);
-  int nbsamples = 8820;
   // float size = sound_time * 5;
   // Creating few arrays that will be used to create a smooth spike
   // Now we have to fill the array with the sum of each 441 samples.
@@ -291,7 +297,7 @@ void play_sound(char *file, float len,int state) {
     frequency = 42100; 
     break;
   }
-  Uint8 buffer[ilen];
+  Uint8 * buffer = malloc(sizeof(Uint8)* ilen);
   if (buffer != NULL)
   {
   }
@@ -353,14 +359,10 @@ void play_sound(char *file, float len,int state) {
 
   /*FILE *fptr;
   fptr = fopen("value.csv","w");
-  //fprintf(fptr,"[");
   for (Uint32 i = 0; i < 20000; ++i) {
     if (i == (sound->alen) - 1)
-      fprintf(fptr, "%d", sound->abuf[i]);
     else
-      fprintf(fptr, "%d,", sound->abuf[i]);
   }
-  //fprintf(fptr,"]");
   fclose(fptr);*/
   // HighPassFilter(sound->abuf, sound->alen);
   while (Mix_Playing(0)) {
@@ -369,6 +371,7 @@ void play_sound(char *file, float len,int state) {
   Mix_FreeChunk(sound);
   Mix_CloseAudio();
   SDL_Quit();
+  free(buffer);
 }
 /*
 int main(int argc, char *argv[]) {

@@ -69,20 +69,20 @@ static gboolean render(GtkGLArea *area) {
     be = -be;
   // Nothing
   if (state == 0) {
-    slide(sct, 4, 0);
+    //slide(sct, 4, 0);
     draw_triangle(sct, scts, 24, 6,al);
   }
 
   // Icosahedron
   if (state == 1) {
-    slide(points, 4,12);
+    //slide(points, 4,12);
     on_motion(points, 12);
     draw_triangle(points, indexes, 96, 66,al);
   }
 
   // Icosphere
   if (state == 2) {
-    slide(points_sphere, 4,162);
+    //slide(points_sphere, 4,162);
     on_motion(points_sphere, 162);
     draw_triangle(points_sphere, indexes_sphere, 996, 966,al);
   }
@@ -117,11 +117,12 @@ void deformation_shape(float *deformation_factors) {
 void *worker(void *arg) {
   int ilen = (int)(len * 5);
   float deformation_factors[ilen];
-  pulsation_array(soundfile, deformation_factors, ilen);
+  pulsation_array(soundfile, deformation_factors, ilen,filter_n);
   deformation_shape(deformation_factors);
   struct button_state *menu = arg;
   if (soundfile != NULL) {
     play_sound(soundfile,len,filter_n);
+    sleep(2);
   }
   gtk_widget_set_sensitive(GTK_WIDGET(menu->play_button), TRUE);
   gtk_widget_set_sensitive(GTK_WIDGET(menu->file_chooser_button), TRUE);

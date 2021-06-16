@@ -65,9 +65,9 @@ void distortion_shape(float *deformation_factors,
       deformation(points_array, pDown, x);
     }
 
-    usleep(100000);
+    usleep(90000);
     deformation(points_array, p, x);
-    usleep(100000);
+    usleep(90000);
 
     deformation(points_array, p, 1 / deformation_factors[i]);
     if (randomPoint > 0 && randomPoint < nb_points) {
