@@ -63,6 +63,7 @@
               <item id="&lt;f1&gt;" translatable="yes">Pas de filtre</item>
               <item id="&lt;f1&gt;" translatable="yes">Filtre pass-haut</item>
               <item id="&lt;f2&gt;" translatable="yes">Filtre pass-bas</item>
+              <item id="&lt;f2&gt;" translatable="yes">Filtre pass-bande</item>
             </items>
           </object>
           <packing>

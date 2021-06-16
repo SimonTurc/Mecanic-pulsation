@@ -162,6 +162,37 @@ void filter_lp(Uint8 *buffer,char* soundfile)
   SDL_Quit();
 }
 
+void filter_bp(Uint8 *buffer,char* soundfile)
+{
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    errx(EXIT_FAILURE, "Unable to initialize SDL: %s", SDL_GetError());
+  }
+
+  if (Mix_OpenAudio(44100, AUDIO_S8, 1, 1024) < 0) {
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to initialize SDL_mixer : %s", Mix_GetError());
+  }
+
+  Mix_Chunk *sound = Mix_LoadWAV_RW(SDL_RWFromFile(soundfile, "rb"), 1);
+  if (sound == NULL) {
+    Mix_CloseAudio();
+    SDL_Quit();
+    errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
+  }
+  int j = 0;
+  for(Uint32 i = 0; i < sound->alen; i++)
+    {
+      if(i%44100 > 2000 && i%44100 < 42100)
+      {
+        buffer[j] = sound->abuf[i];
+        j++;
+      }
+    }
+  Mix_FreeChunk(sound);
+  Mix_CloseAudio();
+  SDL_Quit();
+}
+
 void filter_hp(Uint8 *buffer, char* soundfile)
 {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -212,6 +243,10 @@ void pulsation_array(char *filename, float *result, int intsize,int state) {
     case 2:
       frequency = 42100;
       nbsamples = 8420; 
+      break;
+    case 3:
+      frequency = 40100;
+      nbsamples = 8020; 
       break;
     }
   if (Mix_OpenAudio(frequency, AUDIO_S8, 1, 1024) < 0) {
@@ -296,6 +331,9 @@ void play_sound(char *file, float len,int state) {
     ilen = (int)(len*42100);
     frequency = 42100; 
     break;
+  case 3:
+    ilen = (int)(len*40100);
+    frequency = 40100; 
   }
   Uint8 * buffer = malloc(sizeof(Uint8)* ilen);
   if (buffer != NULL)
@@ -308,6 +346,10 @@ void play_sound(char *file, float len,int state) {
   if (state == 2)
   {
     filter_lp(buffer,file);
+  }
+  if (state == 3)
+  {
+    filter_bp(buffer,file);
   }
   
   //filter_lp(buffer);
@@ -332,19 +374,10 @@ void play_sound(char *file, float len,int state) {
     errx(EXIT_FAILURE, "Unable to load sound: %s", Mix_GetError());
   }
 
-  if (state == 1)
+  if (state != 1)
   {
     /*264600*/
     for(Uint32 i = 0; i < sound->alen; i++)
-    {
-      sound->abuf[i] = buffer[i];
-    }
-  }
-
-  if (state == 2)
-  {
-    /*264600*/
-    for(int i = 0; i < sound->alen; i++)
     {
       sound->abuf[i] = buffer[i];
     }

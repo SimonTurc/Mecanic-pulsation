@@ -1,6 +1,6 @@
 CPPFLAGS = -MMD `sdl2-config --cflags`
-CC = gcc -pthread -fsanitize=address
-CFLAGS = `pkg-config --cflags gtk+-3.0` -Wextra -Wall -O3 -g 
+CC = gcc -pthread
+CFLAGS = `pkg-config --cflags gtk+-3.0` -Wextra -Wall -O3
 LDFLAGS =
 LDLIBS = `pkg-config --libs gtk+-3.0` `sdl2-config --libs` -lGL -lGLEW -lSDL2_mixer  -lm
 

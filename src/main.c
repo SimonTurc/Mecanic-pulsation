@@ -164,6 +164,10 @@ static gboolean filter_number(GtkComboBox *filter_box, void *arg) {
   case 3:
     filter_n = 2;
     break;
+
+  case 4:
+    filter_n = 3;
+    break;
   }
   gtk_widget_set_sensitive(GTK_WIDGET(combo_box), TRUE);
   return TRUE;
