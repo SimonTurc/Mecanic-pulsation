@@ -344,7 +344,7 @@ void play_sound(char *file, float len,int state) {
   if (state == 2)
   {
     /*264600*/
-    for(int i = 0; i < ilen; i++)
+    for(int i = 0; i < sound->alen; i++)
     {
       sound->abuf[i] = buffer[i];
     }
